@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#1a1a2e">
+  <title>英文句型積木</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #1a1a2e; --card: #16213e; --border: #2a2a4a;
+      --gold: #ffd700; --accent: #e94560;
+      --blue: #42a5f5; --red: #ef5350; --green: #66bb6a;
+      --yellow: #ffca28; --purple: #ab47bc; --orange: #ffa726;
+      --text: #e8e8f0; --dim: #8888aa; --muted: #555577;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Fredoka', sans-serif; background: var(--bg);
+      color: var(--text); min-height: 100dvh; overflow-x: hidden;
+      user-select: none; -webkit-user-select: none;
+    }
+
+    /* ═══ Top Bar ═══ */
+    .top-bar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 12px; position: sticky; top: 0;
+      background: var(--bg); z-index: 100;
+    }
+    .user-btn {
+      padding: 4px 14px; border: 2px solid var(--border); border-radius: 20px;
+      background: transparent; color: var(--dim); font-family: inherit;
+      font-size: 0.8rem; font-weight: 600; cursor: pointer;
+    }
+    .user-btn.active { border-color: var(--gold); color: var(--text); background: rgba(255,215,0,0.1); }
+    .score-badge {
+      margin-left: auto; padding: 4px 12px; border-radius: 14px;
+      background: var(--accent); color: white; font-size: 0.75rem; font-weight: 700;
+    }
+    .gear-btn {
+      width: 36px; height: 36px; border: none; border-radius: 50%;
+      background: var(--card); color: var(--dim); font-size: 1rem; cursor: pointer;
+    }
+
+    /* ═══ Level Selector ═══ */
+    .level-tabs {
+      display: flex; gap: 6px; padding: 4px 12px; overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .level-tabs::-webkit-scrollbar { display: none; }
+    .level-tab {
+      padding: 6px 16px; border: 1.5px solid var(--border); border-radius: 16px;
+      background: transparent; color: var(--dim); font-family: inherit;
+      font-size: 0.7rem; font-weight: 600; cursor: pointer; white-space: nowrap;
+      transition: all 0.15s;
+    }
+    .level-tab.active { border-color: var(--gold); color: var(--gold); background: rgba(255,215,0,0.08); }
+    .level-tab.locked { opacity: 0.3; cursor: not-allowed; }
+
+    /* ═══ Challenge Card ═══ */
+    .challenge-card {
+      margin: 12px; padding: 16px 20px; border-radius: 20px;
+      background: var(--card); border: 1px solid var(--border);
+    }
+    .challenge-header {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+    }
+    .challenge-num {
+      width: 28px; height: 28px; border-radius: 50%; background: var(--accent);
+      color: white; font-size: 0.7rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .challenge-title { font-size: 0.85rem; font-weight: 600; }
+    .challenge-chinese {
+      font-size: 1.1rem; font-weight: 700; color: var(--gold);
+      margin: 8px 0 4px; text-align: center;
+    }
+    .challenge-formula {
+      font-size: 0.65rem; color: var(--dim); text-align: center;
+      font-family: monospace; margin-bottom: 12px;
+    }
+
+    /* ═══ Formula Slots ═══ */
+    .slots-area {
+      display: flex; gap: 8px; justify-content: center;
+      flex-wrap: wrap; margin-bottom: 16px; min-height: 56px;
+    }
+    .slot {
+      min-width: 60px; padding: 10px 14px; border: 2.5px dashed var(--border);
+      border-radius: 14px; text-align: center; transition: all 0.2s;
+      position: relative;
+    }
+    .slot .slot-label {
+      font-size: 0.5rem; color: var(--muted); position: absolute;
+      top: -8px; left: 50%; transform: translateX(-50%);
+      background: var(--card); padding: 0 4px;
+    }
+    .slot .slot-value {
+      font-size: 1rem; font-weight: 700; min-height: 1.2em;
+    }
+    .slot.filled { border-style: solid; }
+    .slot.filled.correct { border-color: var(--green); background: rgba(102,187,106,0.1); }
+    .slot.filled.wrong { border-color: var(--accent); background: rgba(233,69,96,0.1); }
+    .slot.subject { border-color: rgba(66,165,245,0.4); }
+    .slot.subject.filled { border-color: var(--blue); }
+    .slot.verb { border-color: rgba(239,83,80,0.4); }
+    .slot.verb.filled { border-color: var(--red); }
+    .slot.object { border-color: rgba(102,187,106,0.4); }
+    .slot.object.filled { border-color: var(--green); }
+    .slot.article { border-color: rgba(255,202,40,0.4); }
+    .slot.article.filled { border-color: var(--yellow); }
+    .slot.auxiliary { border-color: rgba(171,71,188,0.4); }
+    .slot.auxiliary.filled { border-color: var(--purple); }
+    .slot.other { border-color: rgba(255,167,38,0.4); }
+    .slot.other.filled { border-color: var(--orange); }
+
+    /* ═══ Word Blocks ═══ */
+    .blocks-area {
+      display: flex; gap: 8px; justify-content: center;
+      flex-wrap: wrap; padding: 8px 0;
+    }
+    .block {
+      padding: 10px 18px; border-radius: 12px;
+      font-family: inherit; font-size: 0.95rem; font-weight: 600;
+      cursor: pointer; transition: all 0.15s; border: none;
+      box-shadow: 0 3px 0 rgba(0,0,0,0.3);
+    }
+    .block:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,0.3); }
+    .block.used { opacity: 0.25; pointer-events: none; transform: scale(0.9); }
+    .block.subject { background: var(--blue); color: white; }
+    .block.verb { background: var(--red); color: white; }
+    .block.object { background: var(--green); color: white; }
+    .block.article { background: var(--yellow); color: #333; }
+    .block.auxiliary { background: var(--purple); color: white; }
+    .block.other { background: var(--orange); color: white; }
+    .block.distractor { background: #555; color: #aaa; }
+
+    /* ═══ Action Buttons ═══ */
+    .actions {
+      display: flex; gap: 10px; justify-content: center; margin-top: 12px;
+    }
+    .btn {
+      padding: 10px 24px; border: none; border-radius: 16px;
+      font-family: inherit; font-size: 0.85rem; font-weight: 600;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .btn:active { transform: scale(0.96); }
+    .btn-clear { background: var(--border); color: var(--dim); }
+    .btn-submit { background: var(--gold); color: #333; }
+    .btn-submit:disabled { opacity: 0.3; cursor: not-allowed; }
+    .btn-next { background: var(--green); color: white; }
+    .btn-hint { background: transparent; border: 1.5px solid var(--border); color: var(--dim); font-size: 0.75rem; }
+
+    /* ═══ Result ═══ */
+    .result-area {
+      text-align: center; padding: 12px; margin-top: 8px;
+      border-radius: 14px; display: none;
+    }
+    .result-area.show { display: block; }
+    .result-area.correct { background: rgba(102,187,106,0.1); }
+    .result-area.wrong { background: rgba(233,69,96,0.1); }
+    .result-emoji { font-size: 2rem; }
+    .result-text { font-size: 0.85rem; margin-top: 4px; }
+    .result-explain { font-size: 0.7rem; color: var(--dim); margin-top: 6px; line-height: 1.5; }
+
+    /* ═══ Progress Bar ═══ */
+    .progress-row {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 16px; margin-top: 4px;
+    }
+    .progress-pills {
+      display: flex; gap: 4px; flex-wrap: wrap; flex: 1;
+    }
+    .progress-pill {
+      width: 24px; height: 24px; border-radius: 50%;
+      border: 2px solid var(--border); font-size: 0.5rem;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--dim); cursor: pointer; transition: all 0.15s;
+    }
+    .progress-pill.active { border-color: var(--gold); color: var(--gold); }
+    .progress-pill.done { border-color: var(--green); color: var(--green); background: rgba(102,187,106,0.1); }
+    .progress-pill.done::after { content: '✓'; }
+    .progress-pill.wrong-done { border-color: var(--accent); color: var(--accent); background: rgba(233,69,96,0.1); }
+    .progress-label { font-size: 0.65rem; color: var(--dim); }
+
+    /* ═══ Grammar Hint (簡易版，Week 2 才做 AI 四步驟) ═══ */
+    .grammar-hint {
+      margin: 12px; padding: 14px 18px; border-radius: 16px;
+      background: rgba(66,165,245,0.08); border: 1px solid rgba(66,165,245,0.2);
+      font-size: 0.72rem; color: var(--dim); line-height: 1.6;
+      display: none;
+    }
+    .grammar-hint.show { display: block; }
+    .grammar-hint b { color: var(--blue); }
+
+    /* ═══ Settings Modal ═══ */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: auto; }
+    .modal {
+      background: var(--card); border-radius: 20px; padding: 24px;
+      width: 90%; max-width: 380px; max-height: 80vh; overflow-y: auto;
+      border: 1px solid var(--border);
+    }
+    .modal h2 { font-size: 1rem; margin-bottom: 12px; }
+    .modal-btn {
+      padding: 8px 20px; border: none; border-radius: 12px;
+      font-family: inherit; font-size: 0.8rem; font-weight: 600; cursor: pointer;
+    }
+    .modal-btn.save { background: var(--gold); color: #333; }
+    .modal-btn.cancel { background: var(--border); color: var(--dim); }
+
+    /* ═══ Empty State ═══ */
+    .empty-state {
+      text-align: center; padding: 40px 20px;
+    }
+    .empty-state .emoji { font-size: 3rem; }
+    .empty-state .title { font-size: 1rem; font-weight: 700; margin: 8px 0; }
+    .empty-state .desc { font-size: 0.75rem; color: var(--dim); line-height: 1.6; }
+
+    /* ═══ Animation ═══ */
+    @keyframes pop { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+    .anim-pop { animation: pop 0.3s ease; }
+    .anim-shake { animation: shake 0.3s ease; }
+    .anim-bounce { animation: pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  </style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="top-bar">
+  <button class="user-btn active" id="btn-iggy" onclick="switchUser('iggy')">🦊 Iggy</button>
+  <button class="user-btn" id="btn-yoyo" onclick="switchUser('yoyo')">🐸 Yoyo</button>
+  <div class="score-badge" id="score-badge">0 分</div>
+  <button class="gear-btn" onclick="openSettings()">⚙️</button>
+</div>
+
+<!-- Level Tabs -->
+<div class="level-tabs" id="level-tabs"></div>
+
+<!-- Challenge Card -->
+<div class="challenge-card" id="challenge-card">
+  <div class="challenge-header">
+    <div class="challenge-num" id="challenge-num">1</div>
+    <div class="challenge-title" id="challenge-title">載入中...</div>
+  </div>
+  <div class="challenge-chinese" id="challenge-chinese"></div>
+  <div class="challenge-formula" id="challenge-formula"></div>
+
+  <!-- Slots -->
+  <div class="slots-area" id="slots-area"></div>
+
+  <!-- Word Blocks -->
+  <div class="blocks-area" id="blocks-area"></div>
+
+  <!-- Actions -->
+  <div class="actions">
+    <button class="btn btn-hint" onclick="showHint()">💡 提示</button>
+    <button class="btn btn-clear" onclick="clearSlots()">↩️ 重來</button>
+    <button class="btn btn-submit" id="btn-submit" onclick="submitAnswer()" disabled>✅ 送出</button>
+  </div>
+
+  <!-- Result -->
+  <div class="result-area" id="result-area">
+    <div class="result-emoji" id="result-emoji"></div>
+    <div class="result-text" id="result-text"></div>
+    <div class="result-explain" id="result-explain"></div>
+    <button class="btn btn-next" onclick="nextChallenge()" style="margin-top:10px;">➡️ 下一題</button>
+  </div>
+</div>
+
+<!-- Grammar Hint -->
+<div class="grammar-hint" id="grammar-hint"></div>
+
+<!-- Progress -->
+<div class="progress-row">
+  <div class="progress-pills" id="progress-pills"></div>
+  <div class="progress-label" id="progress-label">0/0</div>
+</div>
+
+<!-- Settings Modal -->
+<div class="modal-overlay" id="settings-modal">
+  <div class="modal">
+    <h2>⚙️ 設定</h2>
+    <div style="margin-bottom:12px;">
+      <label style="font-size:0.75rem;color:var(--dim);">🧠 Gemini API Key（未來 AI 解說用）</label>
+      <input type="password" id="gemini-key-input" placeholder="AIza..." style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);font-size:0.8rem;margin-top:4px;">
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button class="modal-btn cancel" onclick="closeSettings()">取消</button>
+      <button class="modal-btn save" onclick="saveSettings()">✅ 儲存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// SENTENCE PATTERNS DATA (10 beginner patterns)
+// ══════════════════════════════════════════
+const PATTERNS = [
+  // 1. I like ___s.
+  {
+    id: "ps_01", level: "beginner", category: "present_simple",
+    title: "我喜歡…", chinese: "我喜歡蘋果。",
+    formula: "S + V + O",
+    answer: ["I", "like", "apples"],
+    slots: [
+      { label: "主詞", type: "subject" },
+      { label: "動詞", type: "verb" },
+      { label: "受詞", type: "object" }
+    ],
+    blocks: [
+      { text: "I", type: "subject" },
+      { text: "like", type: "verb" },
+      { text: "apples", type: "object" }
+    ],
+    distractors: [
+      { text: "likes", type: "distractor" },
+      { text: "an", type: "distractor" }
+    ],
+    grammarPoints: ["主詞是 I → 動詞用原形 like（不加 s）", "apples 是複數，表示「蘋果（們）」"],
+    explain: "I/you/we/they 後面動詞用<b>原形</b>，不加 s。"
+  },
+  // 2. She likes ___s.
+  {
+    id: "ps_02", level: "beginner", category: "present_simple",
+    title: "她喜歡…", chinese: "她喜歡貓。",
+    formula: "S(第三人稱) + V-s + O",
+    answer: ["She", "likes", "cats"],
+    slots: [
+      { label: "主詞", type: "subject" },
+      { label: "動詞+s", type: "verb" },
+      { label: "受詞", type: "object" }
+    ],
+    blocks: [
+      { text: "She", type: "subject" },
+      { text: "likes", type: "verb" },
+      { text: "cats", type: "object" }
+    ],
+    distractors: [
+      { text: "like", type: "distractor" },
+      { text: "He", type: "distractor" }
+    ],
+    grammarPoints: ["She 是第三人稱 → 動詞要加 s", "like → likes"],
+    explain: "He/She/It 是<b>第三人稱單數</b>，動詞要加 <b>-s</b>。"
+  },
+  // 3. I have a banana.
+  {
+    id: "ps_03", level: "beginner", category: "articles",
+    title: "我有一個…", chinese: "我有一根香蕉。",
+    formula: "S + have + a + N",
+    answer: ["I", "have", "a", "banana"],
+    slots: [
+      { label: "主詞", type: "subject" },
+      { label: "動詞", type: "verb" },
+      { label: "冠詞", type: "article" },
+      { label: "名詞", type: "object" }
+    ],
+    blocks: [
+      { text: "I", type: "subject" },
+      { text: "have", type: "verb" },
+      { text: "a", type: "article" },
+      { text: "banana", type: "object" }
+    ],
+    distractors: [
+      { text: "an", type: "distractor" },
+      { text: "has", type: "distractor" }
+    ],
+    grammarPoints: ["banana 是子音開頭 → 用 a", "如果是 apple 就要用 an"],
+    explain: "<b>a</b> 用在子音開頭的字前面，<b>an</b> 用在母音開頭（a/e/i/o/u）的字前面。"
+  },
+  // 4. I have an egg.
+  {
+    id: "ps_04", level: "beginner", category: "articles",
+    title: "我有一顆…", chinese: "我有一顆蛋。",
+    formula: "S + have + an + N(母音)",
+    answer: ["I", "have", "an", "egg"],
+    slots: [
+      { label: "主詞", type: "subject" },
+      { label: "動詞", type: "verb" },
+      { label: "冠詞", type: "article" },
+      { label: "名詞", type: "object" }
+    ],
+    blocks: [
+      { text: "I", type: "subject" },
+      { text: "have", type: "verb" },
+      { text: "an", type: "article" },
+      { text: "egg", type: "object" }
+    ],
+    distractors: [
+      { text: "a", type: "distractor" },
+      { text: "eggs", type: "distractor" }
+    ],
+    grammarPoints: ["egg 是母音 e 開頭 → 用 an", "an 讓發音更順暢"],
+    explain: "egg 的第一個音是母音 <b>e</b>，所以用 <b>an</b> 不用 a。"
+  },
+  // 5. I can swim.
+  {
+    id: "ps_05", level: "beginner", category: "can",
+    title: "我會…", chinese: "我會游泳。",
+    formula: "S + can + V(原形)",
+    answer: ["I", "can", "swim"],
+    slots: [
+      { label: "主詞", type: "subject" },
+      { label: "助動詞", type: "auxiliary" },
+      { label: "動詞原形", type: "verb" }
+    ],
+    blocks: [
+      { text: "I", type: "subject" },
+      { text: "can", type: "auxiliary" },
+      { text: "swim", type: "verb" }
+    ],
+    distractors: [
+      { text: "swims", type: "distractor" },
+      { text: "swimming", type: "distractor" }
+    ],
+    grammarPoints: ["can 後面接動詞原形", "不管主詞是誰，can 後面的動詞都不變"],
+    explain: "<b>can</b> 後面的動詞永遠用<b>原形</b>，不加 s、不加 ing。"
+  },
+  // 6. It is big.
+  {
+    id: "ps_06", level: "beginner", category: "be_adj",
+    title: "它是…的", chinese: "它很大。",
+    formula: "S + is + Adj",
+    answer: ["It", "is", "big"],
+    slots: [
+      { label: "主詞", type: "subject" },
+      { label: "Be 動詞", type: "verb" },
+      { label: "形容詞", type: "other" }
+    ],
+    blocks: [
+      { text: "It", type: "subject" },
+      { text: "is", type: "verb" },
+      { text: "big", type: "other" }
+    ],
+    distractors: [
+      { text: "are", type: "distractor" },
+      { text: "am", type: "distractor" }
+    ],
+    grammarPoints: ["It 搭配 is（不是 am 也不是 are）", "形容詞直接放在 is 後面"],
+    explain: "I → <b>am</b>，He/She/It → <b>is</b>，You/We/They → <b>are</b>。"
+  },
+  // 7. This is a dog.
+  {
+    id: "ps_07", level: "beginner", category: "this_is",
+    title: "這是一隻…", chinese: "這是一隻狗。",
+    formula: "This + is + a + N",
+    answer: ["This", "is", "a", "dog"],
+    slots: [
+      { label: "指示詞", type: "subject" },
+      { label: "Be 動詞", type: "verb" },
+      { label: "冠詞", type: "article" },
+      { label: "名詞", type: "object" }
+    ],
+    blocks: [
+      { text: "This", type: "subject" },
+      { text: "is", type: "verb" },
+      { text: "a", type: "article" },
+      { text: "dog", type: "object" }
+    ],
+    distractors: [
+      { text: "That", type: "distractor" },
+      { text: "dogs", type: "distractor" }
+    ],
+    grammarPoints: ["This 指近處的東西", "a dog = 一隻狗（單數）"],
+    explain: "<b>This</b> = 這個（近的），<b>That</b> = 那個（遠的）。"
+  },
+  // 8. Do you like dogs?
+  {
+    id: "ps_08", level: "beginner", category: "question",
+    title: "你喜歡…嗎？", chinese: "你喜歡狗嗎？",
+    formula: "Do + S + V(原) + O ?",
+    answer: ["Do", "you", "like", "dogs"],
+    slots: [
+      { label: "助動詞", type: "auxiliary" },
+      { label: "主詞", type: "subject" },
+      { label: "動詞原形", type: "verb" },
+      { label: "受詞", type: "object" }
+    ],
+    blocks: [
+      { text: "Do", type: "auxiliary" },
+      { text: "you", type: "subject" },
+      { text: "like", type: "verb" },
+      { text: "dogs", type: "object" }
+    ],
+    distractors: [
+      { text: "Does", type: "distractor" },
+      { text: "likes", type: "distractor" }
+    ],
+    grammarPoints: ["疑問句把 Do 放到最前面", "Do 後面的動詞用原形"],
+    explain: "疑問句把 <b>Do/Does</b> 搬到句首，動詞回到<b>原形</b>。"
+  },
+  // 9. I want to eat.
+  {
+    id: "ps_09", level: "beginner", category: "want_to",
+    title: "我想要…", chinese: "我想要吃東西。",
+    formula: "S + want + to + V",
+    answer: ["I", "want", "to", "eat"],
+    slots: [
+      { label: "主詞", type: "subject" },
+      { label: "動詞", type: "verb" },
+      { label: "to", type: "other" },
+      { label: "動詞原形", type: "verb" }
+    ],
+    blocks: [
+      { text: "I", type: "subject" },
+      { text: "want", type: "verb" },
+      { text: "to", type: "other" },
+      { text: "eat", type: "verb" }
+    ],
+    distractors: [
+      { text: "eating", type: "distractor" },
+      { text: "eats", type: "distractor" }
+    ],
+    grammarPoints: ["want to + 動詞原形 = 想要做某事", "to 後面永遠接原形"],
+    explain: "<b>want to</b> 後面接動詞<b>原形</b>，表示「想要做…」。"
+  },
+  // 10. There is a cat.
+  {
+    id: "ps_10", level: "beginner", category: "there_is",
+    title: "有一隻…", chinese: "有一隻貓。",
+    formula: "There + is + a + N",
+    answer: ["There", "is", "a", "cat"],
+    slots: [
+      { label: "There", type: "other" },
+      { label: "Be 動詞", type: "verb" },
+      { label: "冠詞", type: "article" },
+      { label: "名詞", type: "object" }
+    ],
+    blocks: [
+      { text: "There", type: "other" },
+      { text: "is", type: "verb" },
+      { text: "a", type: "article" },
+      { text: "cat", type: "object" }
+    ],
+    distractors: [
+      { text: "are", type: "distractor" },
+      { text: "cats", type: "distractor" }
+    ],
+    grammarPoints: ["There is + 單數名詞 = 有一個…", "There are + 複數名詞 = 有很多…"],
+    explain: "單數用 <b>There is</b>，複數用 <b>There are</b>。"
+  }
+];
+
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+let currentUser = 'iggy';
+let currentPatternIdx = 0;
+let totalScore = 0;
+let slotValues = [];   // current slot fills
+let usedBlocks = [];   // which blocks are used
+let progress = {};     // { pattern_id: 'correct' | 'wrong' | null }
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+function init() {
+  loadUserData();
+  renderLevelTabs();
+  loadChallenge(currentPatternIdx);
+  renderProgressPills();
+  updateScore();
+}
+
+function loadUserData() {
+  try {
+    currentUser = localStorage.getItem('sl-user') || 'iggy';
+    totalScore = parseInt(localStorage.getItem('sl-' + currentUser + '-score') || '0');
+    progress = JSON.parse(localStorage.getItem('sl-' + currentUser + '-progress') || '{}');
+    currentPatternIdx = parseInt(localStorage.getItem('sl-' + currentUser + '-idx') || '0');
+    if (currentPatternIdx >= PATTERNS.length) currentPatternIdx = 0;
+  } catch(e) {}
+  document.querySelectorAll('.user-btn').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById('btn-' + currentUser);
+  if (btn) btn.classList.add('active');
+}
+
+function saveUserData() {
+  try {
+    localStorage.setItem('sl-user', currentUser);
+    localStorage.setItem('sl-' + currentUser + '-score', totalScore);
+    localStorage.setItem('sl-' + currentUser + '-progress', JSON.stringify(progress));
+    localStorage.setItem('sl-' + currentUser + '-idx', currentPatternIdx);
+  } catch(e) {}
+}
+
+function switchUser(userId) {
+  currentUser = userId;
+  document.querySelectorAll('.user-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn-' + userId).classList.add('active');
+  loadUserData();
+  loadChallenge(currentPatternIdx);
+  renderProgressPills();
+  updateScore();
+}
+
+// ══════════════════════════════════════════
+// LEVEL TABS
+// ══════════════════════════════════════════
+function renderLevelTabs() {
+  const categories = [...new Set(PATTERNS.map(p => p.category))];
+  const labels = {
+    present_simple: '現在式', articles: '冠詞 a/an', can: '能力 can',
+    be_adj: 'Be + 形容詞', this_is: '這是...', question: '疑問句',
+    want_to: '想要 want to', there_is: 'There is/are'
+  };
+  const el = document.getElementById('level-tabs');
+  el.innerHTML = '';
+  // "All" tab
+  const allTab = document.createElement('button');
+  allTab.className = 'level-tab active';
+  allTab.textContent = '🏗️ 全部';
+  allTab.onclick = () => { currentPatternIdx = 0; loadChallenge(0); renderProgressPills(); setActiveTab(allTab); };
+  el.appendChild(allTab);
+
+  categories.forEach(cat => {
+    const tab = document.createElement('button');
+    tab.className = 'level-tab';
+    tab.textContent = labels[cat] || cat;
+    tab.onclick = () => {
+      const idx = PATTERNS.findIndex(p => p.category === cat);
+      if (idx >= 0) { currentPatternIdx = idx; loadChallenge(idx); renderProgressPills(); setActiveTab(tab); }
+    };
+    el.appendChild(tab);
+  });
+}
+
+function setActiveTab(activeBtn) {
+  document.querySelectorAll('.level-tab').forEach(t => t.classList.remove('active'));
+  activeBtn.classList.add('active');
+}
+
+// ══════════════════════════════════════════
+// CHALLENGE
+// ══════════════════════════════════════════
+function loadChallenge(idx) {
+  if (idx >= PATTERNS.length) idx = 0;
+  currentPatternIdx = idx;
+  const p = PATTERNS[idx];
+  
+  document.getElementById('challenge-num').textContent = idx + 1;
+  document.getElementById('challenge-title').textContent = p.title;
+  document.getElementById('challenge-chinese').textContent = '💬 ' + p.chinese;
+  document.getElementById('challenge-formula').textContent = '公式：' + p.formula;
+
+  // Reset
+  slotValues = new Array(p.slots.length).fill(null);
+  usedBlocks = [];
+  document.getElementById('result-area').className = 'result-area';
+  document.getElementById('grammar-hint').className = 'grammar-hint';
+  document.getElementById('btn-submit').disabled = true;
+
+  // Render slots
+  const slotsEl = document.getElementById('slots-area');
+  slotsEl.innerHTML = '';
+  p.slots.forEach((s, i) => {
+    const div = document.createElement('div');
+    div.className = 'slot ' + s.type;
+    div.innerHTML = `<span class="slot-label">${s.label}</span><span class="slot-value" id="sv-${i}"></span>`;
+    div.onclick = () => removeFromSlot(i);
+    slotsEl.appendChild(div);
+  });
+
+  // Render blocks (shuffle)
+  const allBlocks = [...p.blocks, ...p.distractors];
+  shuffle(allBlocks);
+  const blocksEl = document.getElementById('blocks-area');
+  blocksEl.innerHTML = '';
+  allBlocks.forEach((b, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'block ' + b.type;
+    btn.textContent = b.text;
+    btn.id = 'blk-' + i;
+    btn.dataset.text = b.text;
+    btn.dataset.type = b.type;
+    btn.onclick = () => addToSlot(b.text, i);
+    blocksEl.appendChild(btn);
+  });
+
+  saveUserData();
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
+// ══════════════════════════════════════════
+// SLOT INTERACTION
+// ══════════════════════════════════════════
+function addToSlot(text, blockIdx) {
+  // Find first empty slot
+  const emptyIdx = slotValues.findIndex(v => v === null);
+  if (emptyIdx === -1) return;
+
+  slotValues[emptyIdx] = { text, blockIdx };
+  usedBlocks.push(blockIdx);
+
+  // Update UI
+  const sv = document.getElementById('sv-' + emptyIdx);
+  sv.textContent = text;
+  sv.parentElement.classList.add('filled', 'anim-pop');
+  setTimeout(() => sv.parentElement.classList.remove('anim-pop'), 300);
+
+  const blk = document.getElementById('blk-' + blockIdx);
+  if (blk) blk.classList.add('used');
+
+  // Enable submit if all slots filled
+  document.getElementById('btn-submit').disabled = slotValues.some(v => v === null);
+}
+
+function removeFromSlot(slotIdx) {
+  const val = slotValues[slotIdx];
+  if (!val) return;
+
+  // Restore block
+  const blk = document.getElementById('blk-' + val.blockIdx);
+  if (blk) blk.classList.remove('used');
+  usedBlocks = usedBlocks.filter(i => i !== val.blockIdx);
+
+  // Clear slot
+  slotValues[slotIdx] = null;
+  const sv = document.getElementById('sv-' + slotIdx);
+  sv.textContent = '';
+  sv.parentElement.classList.remove('filled', 'correct', 'wrong');
+
+  document.getElementById('btn-submit').disabled = true;
+}
+
+function clearSlots() {
+  const p = PATTERNS[currentPatternIdx];
+  slotValues.forEach((v, i) => {
+    if (v) {
+      const blk = document.getElementById('blk-' + v.blockIdx);
+      if (blk) blk.classList.remove('used');
+    }
+  });
+  slotValues = new Array(p.slots.length).fill(null);
+  usedBlocks = [];
+  p.slots.forEach((s, i) => {
+    const sv = document.getElementById('sv-' + i);
+    sv.textContent = '';
+    sv.parentElement.classList.remove('filled', 'correct', 'wrong');
+  });
+  document.getElementById('btn-submit').disabled = true;
+  document.getElementById('result-area').className = 'result-area';
+}
+
+// ══════════════════════════════════════════
+// SUBMIT & VALIDATE
+// ══════════════════════════════════════════
+function submitAnswer() {
+  const p = PATTERNS[currentPatternIdx];
+  const userAnswer = slotValues.map(v => v?.text);
+  const isCorrect = p.answer.every((a, i) => userAnswer[i] === a);
+
+  const resultArea = document.getElementById('result-area');
+  const resultEmoji = document.getElementById('result-emoji');
+  const resultText = document.getElementById('result-text');
+  const resultExplain = document.getElementById('result-explain');
+
+  // Color slots
+  slotValues.forEach((v, i) => {
+    const slotEl = document.getElementById('sv-' + i)?.parentElement;
+    if (v?.text === p.answer[i]) {
+      slotEl.classList.add('correct');
+    } else {
+      slotEl.classList.add('wrong');
+    }
+  });
+
+  if (isCorrect) {
+    resultEmoji.textContent = '🎉';
+    resultText.textContent = '太棒了！完全正確！';
+    resultExplain.innerHTML = p.explain;
+    resultArea.className = 'result-area show correct anim-bounce';
+    totalScore += 10;
+    progress[p.id] = 'correct';
+  } else {
+    const correctStr = p.answer.join(' ');
+    resultEmoji.textContent = '💪';
+    resultText.textContent = '再試試看！';
+    resultExplain.innerHTML = '正確答案：<b>' + correctStr + '</b><br>' + p.explain;
+    resultArea.className = 'result-area show wrong anim-shake';
+    progress[p.id] = 'wrong';
+  }
+
+  updateScore();
+  renderProgressPills();
+  saveUserData();
+}
+
+function nextChallenge() {
+  currentPatternIdx++;
+  if (currentPatternIdx >= PATTERNS.length) currentPatternIdx = 0;
+  loadChallenge(currentPatternIdx);
+  renderProgressPills();
+}
+
+// ══════════════════════════════════════════
+// HINT
+// ══════════════════════════════════════════
+function showHint() {
+  const p = PATTERNS[currentPatternIdx];
+  const hintEl = document.getElementById('grammar-hint');
+  hintEl.innerHTML = '💡 <b>提示：</b><br>' + p.grammarPoints.map(g => '• ' + g).join('<br>');
+  hintEl.className = 'grammar-hint show anim-pop';
+}
+
+// ══════════════════════════════════════════
+// PROGRESS
+// ══════════════════════════════════════════
+function renderProgressPills() {
+  const el = document.getElementById('progress-pills');
+  el.innerHTML = '';
+  PATTERNS.forEach((p, i) => {
+    const pill = document.createElement('div');
+    const status = progress[p.id];
+    pill.className = 'progress-pill' +
+      (i === currentPatternIdx ? ' active' : '') +
+      (status === 'correct' ? ' done' : '') +
+      (status === 'wrong' ? ' wrong-done' : '');
+    pill.textContent = status ? '' : (i + 1);
+    pill.onclick = () => { loadChallenge(i); renderProgressPills(); };
+    el.appendChild(pill);
+  });
+  const done = Object.values(progress).filter(v => v === 'correct').length;
+  document.getElementById('progress-label').textContent = done + '/' + PATTERNS.length;
+}
+
+function updateScore() {
+  document.getElementById('score-badge').textContent = totalScore + ' 分';
+}
+
+// ══════════════════════════════════════════
+// SETTINGS
+// ══════════════════════════════════════════
+function openSettings() { document.getElementById('settings-modal').classList.add('open'); }
+function closeSettings() { document.getElementById('settings-modal').classList.remove('open'); }
+function saveSettings() {
+  const key = document.getElementById('gemini-key-input').value.trim();
+  if (key) localStorage.setItem('sl-gemini-key', key);
+  closeSettings();
+}
+
+// ══════════════════════════════════════════
+// START
+// ══════════════════════════════════════════
+window.addEventListener('load', init);
+</script>
+</body>
+</html>
