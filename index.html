@@ -154,15 +154,15 @@
 
     /* ═══ Result ═══ */
     .result-area {
-      text-align: center; padding: 12px; margin-top: 8px;
-      border-radius: 14px; display: none;
+      text-align: center; padding: 6px 12px; margin-top: 4px;
+      border-radius: 10px; display: none;
     }
     .result-area.show { display: block; }
     .result-area.correct { background: rgba(102,187,106,0.1); }
     .result-area.wrong { background: rgba(233,69,96,0.1); }
-    .result-emoji { font-size: 2rem; }
-    .result-text { font-size: 0.85rem; margin-top: 4px; }
-    .result-explain { font-size: 0.7rem; color: var(--dim); margin-top: 6px; line-height: 1.5; }
+    .result-emoji { display: none; }
+    .result-text { font-size: 0.75rem; }
+    .result-explain { font-size: 0.65rem; color: var(--dim); margin-top: 2px; line-height: 1.4; user-select: text; -webkit-user-select: text; }
 
     /* ═══ Progress Bar ═══ */
     .progress-row {
@@ -248,6 +248,28 @@
     .bs-try { font-size: 0.65rem; color: var(--dim); background: rgba(255,255,255,0.03); padding: 6px 10px; border-radius: 8px; margin-top: 6px; line-height: 1.5; user-select: text; -webkit-user-select: text; }
     .result-explain { user-select: text; -webkit-user-select: text; }
 
+    /* ═══ 精簡結果區 ═══ */
+    .result-area.compact { padding: 6px 12px !important; margin-top: 4px !important; }
+    .result-area.compact .result-emoji { display: none !important; }
+    .result-area.compact .result-text { font-size: 0.75rem !important; margin: 0 !important; }
+    .result-area.compact .result-explain { font-size: 0.65rem !important; margin-top: 2px !important; }
+    .result-area.compact .btn-next { margin-top: 6px !important; padding: 6px 18px !important; font-size: 0.75rem !important; }
+
+    /* ═══ 標題+按鈕同一行 ═══ */
+    .challenge-header { display: flex !important; align-items: center !important; flex-wrap: nowrap !important; gap: 6px !important; margin-bottom: 4px !important; }
+    .challenge-title { flex: 1; min-width: 0; }
+    .actions { display: flex !important; gap: 4px !important; margin: 0 0 0 auto !important; padding: 0 !important; flex-shrink: 0 !important; }
+    .actions .btn { padding: 4px 8px !important; font-size: 0.6rem !important; border-radius: 8px !important; margin: 0 !important; white-space: nowrap !important; }
+
+    /* ═══ 漫畫放大 ═══ */
+    .comic-panel .panel-emoji { font-size: 1.4rem !important; margin-bottom: 6px !important; }
+    .comic-panel .panel-text { font-size: 0.7rem !important; }
+    .comic-formula { font-size: 0.75rem !important; padding: 8px 14px !important; }
+    .comic-title { font-size: 0.85rem !important; }
+    .blindspot-card .bs-metaphor { font-size: 0.95rem !important; }
+    .blindspot-card .bs-cn, .blindspot-card .bs-en { font-size: 0.78rem !important; }
+    .blindspot-card .bs-diff { font-size: 0.8rem !important; }
+
     /* 四格漫畫卡片 */
     .comic-card { margin:8px 0 0;border-radius:14px;overflow:hidden;animation:pop 0.4s cubic-bezier(0.34,1.56,0.64,1);user-select:text;-webkit-user-select:text; }
     .comic-title { padding:8px 14px;font-size:0.8rem;font-weight:700;background:var(--card);border-bottom:1px solid var(--border); }
@@ -278,6 +300,14 @@
     <div class="challenge-num" id="challenge-num">1</div>
     <div class="challenge-title" id="challenge-title">載入中...</div>
   </div>
+
+  <!-- Actions (左側對齊，方便左手大拇指) -->
+  <div class="actions" style="justify-content:flex-start;margin:4px 0 8px;gap:6px;">
+    <button class="btn btn-hint" onclick="showHint()">💡 提示</button>
+    <button class="btn btn-clear" onclick="clearSlots()">↩️ 重來</button>
+    <button class="btn btn-submit" id="btn-submit" onclick="submitAnswer()" disabled>✅ 送出</button>
+  </div>
+
   <div class="challenge-chinese" id="challenge-chinese"></div>
   <div class="challenge-formula" id="challenge-formula"></div>
 
@@ -287,19 +317,11 @@
   <!-- Word Blocks -->
   <div class="blocks-area" id="blocks-area"></div>
 
-  <!-- Actions -->
-  <div class="actions">
-    <button class="btn btn-hint" onclick="showHint()">💡 提示</button>
-    <button class="btn btn-clear" onclick="clearSlots()">↩️ 重來</button>
-    <button class="btn btn-submit" id="btn-submit" onclick="submitAnswer()" disabled>✅ 送出</button>
-  </div>
-
-  <!-- Result -->
+  <!-- Result (精簡版) -->
   <div class="result-area" id="result-area">
-    <div class="result-emoji" id="result-emoji"></div>
-    <div class="result-text" id="result-text"></div>
-    <div class="result-explain" id="result-explain"></div>
-    <button class="btn btn-next" onclick="nextChallenge()" style="margin-top:10px;">➡️ 下一題</button>
+    <div class="result-text" id="result-text" style="font-size:0.75rem;"></div>
+    <div class="result-explain" id="result-explain" style="font-size:0.65rem;margin-top:2px;"></div>
+    <button class="btn btn-next" onclick="nextChallenge()" style="margin-top:6px;padding:6px 18px;font-size:0.75rem;">➡️ 下一題</button>
   </div>
 </div>
 
@@ -709,6 +731,80 @@ const PATTERNS = [
     explain: "She/He/It 的否定用 <b>doesn't</b>，它幫動詞扛了 s，所以動詞用<b>原形</b>。",
     blindspot: { tag:"doesn't 護盾", metaphor:"⛔🛡️ 禁止+護盾", cnThinking:"中文：「她不喜歡」→ 動詞不變", enLogic:"英文：doesn't = don't 的三單版。它幫 like 扛了 s，所以 like 不用再加 s", keyDiff:"doesn't 已經包含了 s，動詞不要再加", trySwap:"She don't like ❌ → She doesn't like ✅" }
   }
+  },
+  // ═══ 中階 Week 2（規則 9-11）═══
+  { id: "ps_16", level: "intermediate", category: "past_tense", title: "我踢了球", chinese: "我昨天踢了球。", formula: "S + V-ed + O", answer: ["I", "played", "ball"],
+    slots: [{label:"主詞",type:"subject"},{label:"動詞過去式",type:"verb"},{label:"受詞",type:"object"}],
+    blocks: [{text:"I",type:"subject"},{text:"played",type:"verb"},{text:"ball",type:"object"}],
+    distractors: [{text:"play",type:"distractor"},{text:"plays",type:"distractor"}],
+    grammarPoints: ["過去式動詞加 ed","play → played"], explain: "過去的事 → 動詞加 <b>-ed</b>。",
+    blindspot: {tag:"時態標記",metaphor:"⏰ 時間戳記",cnThinking:"中文：「我踢球」→ 靠「昨天」，動詞不變",enLogic:"英文：動詞自己要蓋「已完成」印章（+ed）",keyDiff:"中文動詞不攜帶時間，英文動詞自帶時間戳",trySwap:"I play yesterday ❌ → I played yesterday ✅"}
+  },
+  { id: "ps_17", level: "intermediate", category: "past_tense", title: "她吃了午餐", chinese: "她吃了午餐。", formula: "S + V(不規則) + O", answer: ["She", "ate", "lunch"],
+    slots: [{label:"主詞",type:"subject"},{label:"動詞過去式",type:"verb"},{label:"受詞",type:"object"}],
+    blocks: [{text:"She",type:"subject"},{text:"ate",type:"verb"},{text:"lunch",type:"object"}],
+    distractors: [{text:"eat",type:"distractor"},{text:"eats",type:"distractor"}],
+    grammarPoints: ["eat 是不規則 → 過去式 ate","不能加 ed"], explain: "eat → <b>ate</b>（不規則，要背！）。",
+    blindspot: {tag:"不規則過去式",metaphor:"⏰ 變形戳記",cnThinking:"中文：「她吃了」→「吃」不變",enLogic:"英文：有些動詞不乖，整個字變形（eat→ate）",keyDiff:"規則加 ed，不規則要特別記",trySwap:"She eated ❌ → She ate ✅"}
+  },
+  { id: "ps_18", level: "intermediate", category: "future_tense", title: "他會去", chinese: "他明天會去。", formula: "S + will + V(原形)", answer: ["He", "will", "go"],
+    slots: [{label:"主詞",type:"subject"},{label:"will",type:"auxiliary"},{label:"動詞原形",type:"verb"}],
+    blocks: [{text:"He",type:"subject"},{text:"will",type:"auxiliary"},{text:"go",type:"verb"}],
+    distractors: [{text:"goes",type:"distractor"},{text:"going",type:"distractor"}],
+    grammarPoints: ["will 後面動詞用原形","will 也是護盾"], explain: "未來式 = <b>will</b> + 動詞原形。",
+    blindspot: {tag:"未來式",metaphor:"⏰🛡️ 未來護盾",cnThinking:"中文：「他會去」→「去」不變",enLogic:"英文：will 是未來標籤＋護盾，後面動詞用原形",keyDiff:"will = 未來 + 護盾（動詞不變身）",trySwap:"He will goes ❌ → He will go ✅"}
+  },
+  { id: "ps_19", level: "intermediate", category: "present_continuous", title: "我在吃", chinese: "我正在吃東西。", formula: "S + am/is/are + V-ing", answer: ["I", "am", "eating"],
+    slots: [{label:"主詞",type:"subject"},{label:"Be動詞",type:"verb"},{label:"動詞-ing",type:"other"}],
+    blocks: [{text:"I",type:"subject"},{text:"am",type:"verb"},{text:"eating",type:"other"}],
+    distractors: [{text:"eat",type:"distractor"},{text:"is",type:"distractor"}],
+    grammarPoints: ["I + am + V-ing = 正在做","進行式需要 be + ing"], explain: "正在做 = <b>am/is/are</b> + V<b>-ing</b>。",
+    blindspot: {tag:"進行式",metaphor:"📸 快照規則",cnThinking:"中文：「我在吃」→ 加「在」就好",enLogic:"英文：拍快照！需要 be 動詞 + 動詞加 ing 兩個零件",keyDiff:"中文加「在」，英文要 be + V-ing 兩個零件",trySwap:"I eating ❌ → I am eating ✅"}
+  },
+  { id: "ps_20", level: "intermediate", category: "present_continuous", title: "她在讀書", chinese: "她正在讀書。", formula: "S + is + V-ing", answer: ["She", "is", "reading"],
+    slots: [{label:"主詞",type:"subject"},{label:"Be動詞",type:"verb"},{label:"動詞-ing",type:"other"}],
+    blocks: [{text:"She",type:"subject"},{text:"is",type:"verb"},{text:"reading",type:"other"}],
+    distractors: [{text:"read",type:"distractor"},{text:"am",type:"distractor"}],
+    grammarPoints: ["She + is + V-ing","She 配 is（拼圖！）"], explain: "She 配 <b>is</b>（拼圖）+ <b>reading</b>（快照）。",
+    blindspot: {tag:"進行式+拼圖",metaphor:"📸🧩 快照+拼圖",cnThinking:"中文：「她在讀」→ 不管主詞配什麼",enLogic:"英文：兩規則同時！拼圖（She→is）+ 快照（+ing）",keyDiff:"英文多個規則會同時生效",trySwap:"She am reading ❌ → She is reading ✅"}
+  },
+  // ═══ 進階 Week 3（規則 12-13）═══
+  { id: "ps_21", level: "advanced", category: "passive", title: "蛋糕被做了", chinese: "蛋糕是媽媽做的。", formula: "O + is + V-pp + by + S", answer: ["The", "cake", "is", "made", "by", "Mom"],
+    slots: [{label:"冠詞",type:"article"},{label:"名詞",type:"object"},{label:"Be",type:"verb"},{label:"過去分詞",type:"other"},{label:"by",type:"other"},{label:"動作者",type:"subject"}],
+    blocks: [{text:"The",type:"article"},{text:"cake",type:"object"},{text:"is",type:"verb"},{text:"made",type:"other"},{text:"by",type:"other"},{text:"Mom",type:"subject"}],
+    distractors: [{text:"make",type:"distractor"},{text:"makes",type:"distractor"}],
+    grammarPoints: ["被動：受詞變主詞","be + 過去分詞 + by"], explain: "被動 = 受詞搬前面 + <b>be + 過去分詞</b> + by。",
+    blindspot: {tag:"被動語態",metaphor:"🪞 鏡子規則",cnThinking:"中文：「媽媽做蛋糕」→ 主角在前面",enLogic:"英文：翻轉！蛋糕搬到前面當主角，像照鏡子左右互換",keyDiff:"英文可以把受詞翻到主詞位置",trySwap:"The cake make by Mom ❌ → The cake is made by Mom ✅"}
+  },
+  { id: "ps_22", level: "advanced", category: "comparative", title: "她比較高", chinese: "她比我高。", formula: "S + is + Adj-er + than + O", answer: ["She", "is", "taller", "than", "me"],
+    slots: [{label:"主詞",type:"subject"},{label:"Be",type:"verb"},{label:"形容詞-er",type:"other"},{label:"than",type:"other"},{label:"對象",type:"object"}],
+    blocks: [{text:"She",type:"subject"},{text:"is",type:"verb"},{text:"taller",type:"other"},{text:"than",type:"other"},{text:"me",type:"object"}],
+    distractors: [{text:"tall",type:"distractor"},{text:"tallest",type:"distractor"}],
+    grammarPoints: ["比較級：形容詞加 er","兩個比用 than"], explain: "兩個比 → 形容詞加 <b>-er</b> + <b>than</b>。",
+    blindspot: {tag:"比較級",metaphor:"📏 天秤規則",cnThinking:"中文：「她比較高」→ 加「比較」，形容詞不變",enLogic:"英文：形容詞自己要變身！tall → taller（長出 er 尾巴）",keyDiff:"中文靠「比較」，英文形容詞自己加 er",trySwap:"She is more tall ❌ → She is taller ✅"}
+  },
+  { id: "ps_23", level: "advanced", category: "comparative", title: "他最高", chinese: "他是最高的。", formula: "S + is + the + Adj-est", answer: ["He", "is", "the", "tallest"],
+    slots: [{label:"主詞",type:"subject"},{label:"Be",type:"verb"},{label:"the",type:"article"},{label:"形容詞-est",type:"other"}],
+    blocks: [{text:"He",type:"subject"},{text:"is",type:"verb"},{text:"the",type:"article"},{text:"tallest",type:"other"}],
+    distractors: [{text:"taller",type:"distractor"},{text:"tall",type:"distractor"}],
+    grammarPoints: ["最高級：the + 形容詞-est","the 不能省"], explain: "最高級 = <b>the</b> + 形容詞<b>-est</b>。",
+    blindspot: {tag:"最高級",metaphor:"📏 天秤傾斜",cnThinking:"中文：「他最高」→ 加「最」就好",enLogic:"英文：形容詞加 est，前面一定要有 the",keyDiff:"最高級 = the + est（缺一不可）",trySwap:"He is tallest ❌ → He is the tallest ✅"}
+  },
+  // ═══ 進階 Week 4（規則 14-15）═══
+  { id: "ps_24", level: "advanced", category: "relative", title: "跑步的男孩", chinese: "跑步的男孩是 Tom。", formula: "The + N + who + V + is + N", answer: ["The", "boy", "who", "runs", "is", "Tom"],
+    slots: [{label:"冠詞",type:"article"},{label:"名詞",type:"object"},{label:"關代",type:"other"},{label:"動詞",type:"verb"},{label:"Be",type:"verb"},{label:"名詞",type:"subject"}],
+    blocks: [{text:"The",type:"article"},{text:"boy",type:"object"},{text:"who",type:"other"},{text:"runs",type:"verb"},{text:"is",type:"verb"},{text:"Tom",type:"subject"}],
+    distractors: [{text:"which",type:"distractor"},{text:"run",type:"distractor"}],
+    grammarPoints: ["who 修飾人","人用 who，東西用 which"], explain: "修飾人 → <b>who</b>，修飾東西 → <b>which</b>。",
+    blindspot: {tag:"關係代名詞",metaphor:"🔗 膠水規則",cnThinking:"中文：「跑步的男孩」→ 用「的」就好",enLogic:"英文：兩句用 who 膠水黏起來",keyDiff:"中文用「的」，英文用 who/which 當膠水",trySwap:"The boy runs is Tom ❌ → The boy who runs is Tom ✅"}
+  },
+  { id: "ps_25", level: "advanced", category: "conditional", title: "如果下雨", chinese: "如果下雨，我就留下。", formula: "If + S + V(現在式), S + will + V", answer: ["If", "it", "rains", "I", "will", "stay"],
+    slots: [{label:"If",type:"other"},{label:"主詞",type:"subject"},{label:"動詞現在式",type:"verb"},{label:"主詞",type:"subject"},{label:"will",type:"auxiliary"},{label:"動詞原形",type:"verb"}],
+    blocks: [{text:"If",type:"other"},{text:"it",type:"subject"},{text:"rains",type:"verb"},{text:"I",type:"subject"},{text:"will",type:"auxiliary"},{text:"stay",type:"verb"}],
+    distractors: [{text:"rain",type:"distractor"},{text:"stayed",type:"distractor"}],
+    grammarPoints: ["If 後用現在式","結果句才用 will"], explain: "If + <b>現在式</b>, 主詞 + <b>will</b> + 原形。",
+    blindspot: {tag:"條件句",metaphor:"🌀 如果規則",cnThinking:"中文：「如果下雨我就留下」→ 動詞不變",enLogic:"英文：If 後面用現在式，結果用 will — 兩邊不對稱",keyDiff:"If 後面用現在式（不是 will！）",trySwap:"If it will rain ❌ → If it rains ✅"}
+  }
 ];
 
 // ══════════════════════════════════════════
@@ -819,7 +915,77 @@ const COMICS = {
     {emoji:"She don't ❌",text:"三單不能用 don't！",color:"rgba(239,83,80,0.1)",border:"rgba(239,83,80,0.3)"},
     {emoji:"<b>doesn't</b> = don't + s",text:"doesn't 幫扛了 s",color:"rgba(66,165,245,0.1)",border:"rgba(66,165,245,0.3)"},
     {emoji:"She <b>doesn't</b> like ✅",text:"動詞回原形，s 在 doesn't 裡",color:"rgba(102,187,106,0.1)",border:"rgba(102,187,106,0.4)"}
-  ], formula:"He/She/It + <b>doesn't</b> + 動詞原形" }
+  ], formula:"He/She/It + <b>doesn't</b> + 動詞原形" },
+
+  "ps_16": { title:"⏰ 時間戳記", panels:[
+    {emoji:"我踢球 → ⚽",text:"中文：「踢」不會變",color:"rgba(255,202,40,0.1)",border:"rgba(255,202,40,0.3)"},
+    {emoji:"⏰ yesterday!",text:"英文要蓋時間戳！",color:"rgba(66,165,245,0.1)",border:"rgba(66,165,245,0.3)"},
+    {emoji:"play + <b>ed</b>",text:"動詞蓋上「已完成」印章",color:"rgba(171,71,188,0.1)",border:"rgba(171,71,188,0.3)"},
+    {emoji:"I <b>played</b> ball ✅",text:"過去的事動詞要加 ed！",color:"rgba(102,187,106,0.1)",border:"rgba(102,187,106,0.4)"}
+  ], formula:"過去 → 動詞 + <b>ed</b>（或不規則變化）" },
+
+  "ps_17": { title:"⏰ 變形戳記", panels:[
+    {emoji:"She eat lunch ❌",text:"eat 不能加 ed！",color:"rgba(239,83,80,0.1)",border:"rgba(239,83,80,0.3)"},
+    {emoji:"eat → ❓",text:"不規則動詞要整個變！",color:"rgba(255,202,40,0.1)",border:"rgba(255,202,40,0.3)"},
+    {emoji:"eat → <b>ate</b>",text:"eat 變身成 ate",color:"rgba(66,165,245,0.1)",border:"rgba(66,165,245,0.3)"},
+    {emoji:"She <b>ate</b> lunch ✅",text:"不規則動詞要特別記！",color:"rgba(102,187,106,0.1)",border:"rgba(102,187,106,0.4)"}
+  ], formula:"規則 +ed ｜ 不規則：eat→ate, go→went" },
+
+  "ps_18": { title:"⏰🛡️ 未來護盾", panels:[
+    {emoji:"He go tomorrow ❌",text:"未來的事也要標記！",color:"rgba(239,83,80,0.1)",border:"rgba(239,83,80,0.3)"},
+    {emoji:"🛡️ <b>will</b> 登場",text:"will = 未來標籤 + 護盾",color:"rgba(66,165,245,0.1)",border:"rgba(66,165,245,0.4)"},
+    {emoji:"will + go（原形）",text:"will 也是護盾，動詞不變！",color:"rgba(255,202,40,0.1)",border:"rgba(255,202,40,0.3)"},
+    {emoji:"He <b>will</b> go ✅",text:"will 後面動詞用原形",color:"rgba(102,187,106,0.1)",border:"rgba(102,187,106,0.4)"}
+  ], formula:"未來 = <b>will</b> + 動詞原形" },
+
+  "ps_19": { title:"📸 快照規則", panels:[
+    {emoji:"我在吃 → 🍽️",text:"中文：加「在」就好",color:"rgba(255,202,40,0.1)",border:"rgba(255,202,40,0.3)"},
+    {emoji:"📸 按下快門！",text:"英文要拍下這個瞬間！",color:"rgba(66,165,245,0.1)",border:"rgba(66,165,245,0.3)"},
+    {emoji:"am + eat<b>ing</b>",text:"be 動詞 + 動詞加 ing",color:"rgba(171,71,188,0.1)",border:"rgba(171,71,188,0.3)"},
+    {emoji:"I <b>am eating</b> ✅",text:"am/is/are + V-ing！",color:"rgba(102,187,106,0.1)",border:"rgba(102,187,106,0.4)"}
+  ], formula:"正在做 = am/is/are + V<b>-ing</b>" },
+
+  "ps_20": { title:"📸🧩 快照+拼圖", panels:[
+    {emoji:"She am reading ❌",text:"She 不配 am！",color:"rgba(239,83,80,0.1)",border:"rgba(239,83,80,0.3)"},
+    {emoji:"🧩 She → <b>is</b>",text:"先配拼圖：She 配 is",color:"rgba(66,165,245,0.1)",border:"rgba(66,165,245,0.3)"},
+    {emoji:"📸 + read<b>ing</b>",text:"再拍快照：加 ing",color:"rgba(255,202,40,0.1)",border:"rgba(255,202,40,0.3)"},
+    {emoji:"She <b>is reading</b> ✅",text:"兩個規則同時生效！",color:"rgba(102,187,106,0.1)",border:"rgba(102,187,106,0.4)"}
+  ], formula:"She/He/It + <b>is</b> + V-ing" },
+
+  "ps_21": { title:"🪞 鏡子規則", panels:[
+    {emoji:"媽媽做🎂",text:"中文：主角在前面",color:"rgba(255,202,40,0.1)",border:"rgba(255,202,40,0.3)"},
+    {emoji:"🪞 翻轉！",text:"英文可以反過來說！",color:"rgba(66,165,245,0.1)",border:"rgba(66,165,245,0.3)"},
+    {emoji:"🎂 is <b>made</b>",text:"蛋糕搬到前面當主角",color:"rgba(171,71,188,0.1)",border:"rgba(171,71,188,0.3)"},
+    {emoji:"The cake is <b>made</b> ✅",text:"be + 過去分詞 + by",color:"rgba(102,187,106,0.1)",border:"rgba(102,187,106,0.4)"}
+  ], formula:"被動 = 受詞 + be + 過去分詞 + by" },
+
+  "ps_22": { title:"📏 天秤規則", panels:[
+    {emoji:"她比較高",text:"中文：加「比較」，形容詞不變",color:"rgba(255,202,40,0.1)",border:"rgba(255,202,40,0.3)"},
+    {emoji:"📏 天秤出現！",text:"英文形容詞要變身！",color:"rgba(66,165,245,0.1)",border:"rgba(66,165,245,0.3)"},
+    {emoji:"tall + <b>er</b>",text:"形容詞長出 er 尾巴",color:"rgba(171,71,188,0.1)",border:"rgba(171,71,188,0.3)"},
+    {emoji:"She is <b>taller</b> ✅",text:"兩個比 → 加 er + than",color:"rgba(102,187,106,0.1)",border:"rgba(102,187,106,0.4)"}
+  ], formula:"A is + 形容詞<b>-er</b> + than B" },
+
+  "ps_23": { title:"📏 天秤傾斜", panels:[
+    {emoji:"他最高",text:"中文：加「最」就好",color:"rgba(255,202,40,0.1)",border:"rgba(255,202,40,0.3)"},
+    {emoji:"📏 天秤傾斜到底！",text:"最高級 → 加 est",color:"rgba(66,165,245,0.1)",border:"rgba(66,165,245,0.3)"},
+    {emoji:"<b>the</b> tall<b>est</b>",text:"前面一定要有 the！",color:"rgba(239,83,80,0.1)",border:"rgba(239,83,80,0.3)"},
+    {emoji:"He is <b>the tallest</b> ✅",text:"the + est 缺一不可！",color:"rgba(102,187,106,0.1)",border:"rgba(102,187,106,0.4)"}
+  ], formula:"最高級 = <b>the</b> + 形容詞<b>-est</b>" },
+
+  "ps_24": { title:"🔗 膠水規則", panels:[
+    {emoji:"跑步的男孩是 Tom",text:"中文：用「的」就好",color:"rgba(255,202,40,0.1)",border:"rgba(255,202,40,0.3)"},
+    {emoji:"🔗 <b>who</b> 膠水！",text:"英文要用膠水黏兩句",color:"rgba(66,165,245,0.1)",border:"rgba(66,165,245,0.3)"},
+    {emoji:"boy + <b>who</b> runs",text:"who 把兩句黏起來",color:"rgba(171,71,188,0.1)",border:"rgba(171,71,188,0.3)"},
+    {emoji:"The boy <b>who</b> runs ✅",text:"人用 who，東西用 which",color:"rgba(102,187,106,0.1)",border:"rgba(102,187,106,0.4)"}
+  ], formula:"人 → <b>who</b> ｜ 東西 → <b>which</b>" },
+
+  "ps_25": { title:"🌀 如果規則", panels:[
+    {emoji:"如果下雨我就留下",text:"中文：動詞不變",color:"rgba(255,202,40,0.1)",border:"rgba(255,202,40,0.3)"},
+    {emoji:"🌀 If 漩渦！",text:"If 開啟兩條路！",color:"rgba(66,165,245,0.1)",border:"rgba(66,165,245,0.4)"},
+    {emoji:"If + 現在式 → will",text:"If 後面不放 will！",color:"rgba(239,83,80,0.1)",border:"rgba(239,83,80,0.3)"},
+    {emoji:"If it <b>rains</b>, I <b>will</b> stay ✅",text:"If 後現在式，結果 will",color:"rgba(102,187,106,0.1)",border:"rgba(102,187,106,0.4)"}
+  ], formula:"If + 現在式, 主詞 + <b>will</b> + 原形" }
 };
 
 // ══════════════════════════════════════════
@@ -884,7 +1050,10 @@ function renderLevelTabs() {
     present_simple: '現在式', articles: '冠詞 a/an', can: '能力 can',
     be_adj: 'Be + 形容詞', this_is: '這是...', question: '疑問句',
     want_to: '想要 want to', there_is: 'There is/are',
-    negative: '⛔ 否定句', imperative: '📢 命令句'
+    negative: '⛔ 否定句', imperative: '📢 命令句',
+    past_tense: '⏰ 過去式', future_tense: '⏰ 未來式',
+    present_continuous: '📸 進行式', passive: '🪞 被動',
+    comparative: '📏 比較級', relative: '🔗 關代', conditional: '🌀 條件句'
   };
   const el = document.getElementById('level-tabs');
   el.innerHTML = '';
@@ -932,6 +1101,7 @@ function loadChallenge(idx) {
   document.getElementById('grammar-hint').className = 'grammar-hint';
   document.getElementById('blindspot-card')?.remove();
   document.getElementById('comic-card')?.remove();
+  document.getElementById('view-toggle')?.remove();
   document.getElementById('btn-submit').disabled = true;
 
   // Render slots
@@ -962,6 +1132,14 @@ function loadChallenge(idx) {
   });
 
   saveUserData();
+
+  // 把 actions 移到 header 裡（標題右側）
+  setTimeout(() => {
+    const card = document.getElementById("challenge-card");
+    const header = card?.querySelector(".challenge-header");
+    const actions = card?.querySelector(".actions");
+    if (header && actions && !header.contains(actions)) header.appendChild(actions);
+  }, 30);
 }
 
 function shuffle(arr) {
@@ -1041,7 +1219,6 @@ function submitAnswer() {
   const isCorrect = p.answer.every((a, i) => userAnswer[i] === a);
 
   const resultArea = document.getElementById('result-area');
-  const resultEmoji = document.getElementById('result-emoji');
   const resultText = document.getElementById('result-text');
   const resultExplain = document.getElementById('result-explain');
 
@@ -1056,41 +1233,61 @@ function submitAnswer() {
   });
 
   if (isCorrect) {
-    resultEmoji.textContent = '🎉';
-    resultText.textContent = '太棒了！完全正確！';
+    resultText.textContent = '✅ 正確！';
     resultExplain.innerHTML = p.explain;
-    resultArea.className = 'result-area show correct anim-bounce';
+    resultArea.className = 'result-area show correct compact';
     totalScore += 10;
     progress[p.id] = 'correct';
   } else {
     const correctStr = p.answer.join(' ');
-    resultEmoji.textContent = '💪';
-    resultText.textContent = '再試試看！';
-    resultExplain.innerHTML = '正確答案：<b>' + correctStr + '</b><br>' + p.explain;
-    resultArea.className = 'result-area show wrong anim-shake';
+    resultText.textContent = '💪 再試一次';
+    resultExplain.innerHTML = '正確：<b>' + correctStr + '</b>';
+    resultArea.className = 'result-area show wrong compact';
     progress[p.id] = 'wrong';
   }
 
   // 顯示語法盲區卡片（中文不存在的文法觀念）
   document.getElementById('blindspot-card')?.remove();
   document.getElementById('comic-card')?.remove();
+  document.getElementById('view-toggle')?.remove();
+
+  // 切換按鈕（四格漫畫 / 純文字）
+  const viewMode = localStorage.getItem('sl-view-mode') || 'comic';
+  const toggle = document.createElement('div');
+  toggle.id = 'view-toggle';
+  toggle.style.cssText = 'display:flex;justify-content:center;gap:4px;margin:6px 0 2px;';
+  const btnComic = document.createElement('button');
+  btnComic.className = 'btn btn-hint' + (viewMode === 'comic' ? ' active-toggle' : '');
+  btnComic.textContent = '🎨 四格漫畫';
+  btnComic.style.cssText = viewMode === 'comic' ? 'border-color:var(--gold);color:var(--gold);background:rgba(255,215,0,0.08);' : '';
+  btnComic.onclick = () => { setViewMode('comic'); };
+  const btnText = document.createElement('button');
+  btnText.className = 'btn btn-hint' + (viewMode === 'text' ? ' active-toggle' : '');
+  btnText.textContent = '📝 純文字';
+  btnText.style.cssText = viewMode === 'text' ? 'border-color:var(--gold);color:var(--gold);background:rgba(255,215,0,0.08);' : '';
+  btnText.onclick = () => { setViewMode('text'); };
+  toggle.appendChild(btnComic);
+  toggle.appendChild(btnText);
+  resultArea.parentNode.insertBefore(toggle, resultArea.nextSibling);
+
+  // Blindspot 文字卡片
   if (p.blindspot) {
     const bs = p.blindspot;
     const card = document.createElement('div');
     card.id = 'blindspot-card';
     card.className = 'blindspot-card';
-    card.innerHTML = '<div class="bs-tag">💡 中文沒有的觀念：' + bs.tag + '</div>'
+    card.innerHTML = '<div class="bs-tag">💡 ' + bs.tag + '</div>'
       + '<div class="bs-metaphor">' + bs.metaphor + '</div>'
       + '<div class="bs-compare">'
-      + '<div class="bs-cn"><b>🇹🇼 中文直覺</b>' + bs.cnThinking + '</div>'
-      + '<div class="bs-en"><b>🇺🇸 英文邏輯</b>' + bs.enLogic + '</div>'
+      + '<div class="bs-cn"><b>🇹🇼 中文</b>' + bs.cnThinking + '</div>'
+      + '<div class="bs-en"><b>🇺🇸 英文</b>' + bs.enLogic + '</div>'
       + '</div>'
       + '<div class="bs-diff">⚡ ' + bs.keyDiff + '</div>'
       + '<div class="bs-try">🧪 ' + bs.trySwap + '</div>';
-    resultArea.parentNode.insertBefore(card, resultArea.nextSibling);
+    toggle.parentNode.insertBefore(card, toggle.nextSibling);
   }
 
-  // 顯示四格漫畫（在盲區卡片下方）
+  // 四格漫畫
   const comic = COMICS[p.id];
   if (comic) {
     const cc = document.createElement('div');
@@ -1105,14 +1302,43 @@ function submitAnswer() {
     });
     html += '</div><div class="comic-formula">' + comic.formula + '</div>';
     cc.innerHTML = html;
-    // 插入到最後（盲區卡片後面或 result-area 後面）
-    const insertAfter = document.getElementById('blindspot-card') || resultArea;
+    const insertAfter = document.getElementById('blindspot-card') || toggle;
     insertAfter.parentNode.insertBefore(cc, insertAfter.nextSibling);
   }
+
+  // 套用顯示模式
+  setViewMode(viewMode);
 
   updateScore();
   renderProgressPills();
   saveUserData();
+  // 保持 actions 在 header 裡
+  setTimeout(() => {
+    const card = document.getElementById("challenge-card");
+    const header = card?.querySelector(".challenge-header");
+    const actions = card?.querySelector(".actions");
+    if (header && actions && !header.contains(actions)) header.appendChild(actions);
+  }, 50);
+}
+
+function setViewMode(mode) {
+  localStorage.setItem('sl-view-mode', mode);
+  const bs = document.getElementById('blindspot-card');
+  const cc = document.getElementById('comic-card');
+  if (mode === 'comic') {
+    if (bs) bs.style.display = 'none';
+    if (cc) cc.style.display = '';
+  } else {
+    if (bs) bs.style.display = '';
+    if (cc) cc.style.display = 'none';
+  }
+  // Update toggle button styles
+  const toggle = document.getElementById('view-toggle');
+  if (toggle) {
+    const btns = toggle.querySelectorAll('button');
+    btns[0].style.cssText = mode === 'comic' ? 'border-color:var(--gold);color:var(--gold);background:rgba(255,215,0,0.08);' : '';
+    btns[1].style.cssText = mode === 'text' ? 'border-color:var(--gold);color:var(--gold);background:rgba(255,215,0,0.08);' : '';
+  }
 }
 
 function nextChallenge() {
