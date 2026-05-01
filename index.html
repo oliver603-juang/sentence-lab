@@ -247,6 +247,16 @@
     .bs-diff { font-size: 0.72rem; color: var(--purple); font-weight: 600; text-align: center; margin: 6px 0; user-select: text; -webkit-user-select: text; }
     .bs-try { font-size: 0.65rem; color: var(--dim); background: rgba(255,255,255,0.03); padding: 6px 10px; border-radius: 8px; margin-top: 6px; line-height: 1.5; user-select: text; -webkit-user-select: text; }
     .result-explain { user-select: text; -webkit-user-select: text; }
+
+    /* 四格漫畫卡片 */
+    .comic-card { margin:8px 0 0;border-radius:14px;overflow:hidden;animation:pop 0.4s cubic-bezier(0.34,1.56,0.64,1);user-select:text;-webkit-user-select:text; }
+    .comic-title { padding:8px 14px;font-size:0.8rem;font-weight:700;background:var(--card);border-bottom:1px solid var(--border); }
+    .comic-grid { display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--border); }
+    .comic-panel { padding:12px 10px;text-align:center;position:relative; }
+    .comic-panel .panel-num { position:absolute;top:4px;left:6px;font-size:0.5rem;font-weight:700;opacity:0.35; }
+    .comic-panel .panel-emoji { font-size:1.2rem;margin-bottom:4px;line-height:1.6; }
+    .comic-panel .panel-text { font-size:0.62rem;line-height:1.4;user-select:text;-webkit-user-select:text; }
+    .comic-formula { padding:6px 14px;text-align:center;font-size:0.68rem;background:var(--card);border-top:1px solid var(--border);line-height:1.5;user-select:text;-webkit-user-select:text; }
   </style>
 </head>
 <body>
@@ -577,6 +587,82 @@ const PATTERNS = [
 ];
 
 // ══════════════════════════════════════════
+// 四格漫畫資料（每格 ≤15 字 + emoji）
+// 未來可改為 Gemini 生成 → Firebase 快取
+// ══════════════════════════════════════════
+const COMICS = {
+  "ps_01": { title:"🎭 遙控器規則", panels:[
+    {emoji:"👦 → 🍎🍎🍎",text:"I like apples",color:"rgba(102,187,106,0.1)",border:"rgba(102,187,106,0.3)"},
+    {emoji:"👧 → 🍎🍎🍎",text:"She like...等等!",color:"rgba(239,83,80,0.1)",border:"rgba(239,83,80,0.3)"},
+    {emoji:"👧💫 → like<b>+s</b>",text:"She 是三單，動詞要變身！",color:"rgba(255,202,40,0.1)",border:"rgba(255,202,40,0.3)"},
+    {emoji:"👧 → like<b>s</b> 🍎",text:"✅ She likes apples.",color:"rgba(102,187,106,0.1)",border:"rgba(102,187,106,0.4)"}
+  ], formula:"👤I/you → like ｜ 👧she/he → like<b>s</b>" },
+
+  "ps_02": { title:"👑 國王管家規則", panels:[
+    {emoji:"👧👑 → 🏃‍♂️",text:"She 是國王，管動詞！",color:"rgba(171,71,188,0.1)",border:"rgba(171,71,188,0.3)"},
+    {emoji:"👧 → like<b>+s</b>",text:"動詞穿上國王制服",color:"rgba(66,165,245,0.1)",border:"rgba(66,165,245,0.3)"},
+    {emoji:"🐱🐱🐱❌",text:"cats 不是國王！沒決定權",color:"rgba(239,83,80,0.1)",border:"rgba(239,83,80,0.3)"},
+    {emoji:"👧 like<b>s</b> 🐱",text:"✅ 看左邊主詞，不看右邊！",color:"rgba(102,187,106,0.1)",border:"rgba(102,187,106,0.4)"}
+  ], formula:"👑主詞 → 決定動詞 ｜ 受詞沒有決定權" },
+
+  "ps_03": { title:"👕 穿衣服規則", panels:[
+    {emoji:"🍌😱",text:"banana 光著身子！",color:"rgba(239,83,80,0.1)",border:"rgba(239,83,80,0.3)"},
+    {emoji:"👕→🍌",text:"名詞必須穿衣服！",color:"rgba(66,165,245,0.1)",border:"rgba(66,165,245,0.3)"},
+    {emoji:"<b>a</b> 🍌",text:"b 開頭是子音 → 穿 a",color:"rgba(255,202,40,0.1)",border:"rgba(255,202,40,0.3)"},
+    {emoji:"I have <b>a</b> 🍌",text:"✅ 名詞不能裸奔！",color:"rgba(102,187,106,0.1)",border:"rgba(102,187,106,0.4)"}
+  ], formula:"名詞 = 必須穿 a / an / the / -s" },
+
+  "ps_04": { title:"🎵 潤滑劑規則", panels:[
+    {emoji:"a 🥚 → 😖",text:"a egg 唸起來卡卡的",color:"rgba(239,83,80,0.1)",border:"rgba(239,83,80,0.3)"},
+    {emoji:"a + <b>n</b> = an",text:"加 n 當潤滑劑！",color:"rgba(66,165,245,0.1)",border:"rgba(66,165,245,0.3)"},
+    {emoji:"a<b>n</b> 🥚 → 🎵",text:"an egg 唸起來超順！",color:"rgba(102,187,106,0.1)",border:"rgba(102,187,106,0.3)"},
+    {emoji:"🅰️母音 → a<b>n</b>",text:"✅ a/e/i/o/u 開頭用 an",color:"rgba(255,202,40,0.1)",border:"rgba(255,202,40,0.4)"}
+  ], formula:"子音 → <b>a</b> dog ｜ 母音 → a<b>n</b> egg" },
+
+  "ps_05": { title:"🛡️ 護盾規則", panels:[
+    {emoji:"👧 → 🏃+<b>s</b>",text:"She runs → 動詞要加 s",color:"rgba(239,83,80,0.1)",border:"rgba(239,83,80,0.3)"},
+    {emoji:"🛡️<b>can</b> 登場！",text:"can 英雄跳出來！",color:"rgba(66,165,245,0.1)",border:"rgba(66,165,245,0.4)"},
+    {emoji:"🛡️擋住 → <s>+s</s>",text:"s 貼紙被護盾彈開！",color:"rgba(255,202,40,0.1)",border:"rgba(255,202,40,0.3)"},
+    {emoji:"She <b>can</b> run",text:"✅ can 後面動詞不變身！",color:"rgba(102,187,106,0.1)",border:"rgba(102,187,106,0.4)"}
+  ], formula:"👤 + 🛡️can + 🏃原形（不加 s/ed/ing）" },
+
+  "ps_06": { title:"🧩 拼圖規則", panels:[
+    {emoji:"I → 🧩<b>am</b>",text:"I 只配 am",color:"rgba(66,165,245,0.1)",border:"rgba(66,165,245,0.3)"},
+    {emoji:"He/She → 🧩<b>is</b>",text:"He/She/It 配 is",color:"rgba(239,83,80,0.1)",border:"rgba(239,83,80,0.3)"},
+    {emoji:"They → 🧩<b>are</b>",text:"You/We/They 配 are",color:"rgba(102,187,106,0.1)",border:"rgba(102,187,106,0.3)"},
+    {emoji:"It <b>is</b> big ✅",text:"拼錯就裝不上去！",color:"rgba(255,202,40,0.1)",border:"rgba(255,202,40,0.4)"}
+  ], formula:"I→am ｜ He/She/It→is ｜ You/We/They→are" },
+
+  "ps_07": { title:"👆 手指規則", panels:[
+    {emoji:"👆🐶",text:"用手指著「這是狗」",color:"rgba(66,165,245,0.1)",border:"rgba(66,165,245,0.3)"},
+    {emoji:"This is dog ❌",text:"英文不能少 a！",color:"rgba(239,83,80,0.1)",border:"rgba(239,83,80,0.3)"},
+    {emoji:"This is <b>a</b> 🐶",text:"加上 a = 一隻",color:"rgba(255,202,40,0.1)",border:"rgba(255,202,40,0.3)"},
+    {emoji:"This is a dog ✅",text:"指東西也要說「幾個」！",color:"rgba(102,187,106,0.1)",border:"rgba(102,187,106,0.4)"}
+  ], formula:"This is + <b>a/an</b> + 名詞" },
+
+  "ps_08": { title:"🚨 警鈴規則", panels:[
+    {emoji:"你喜歡狗嗎？",text:"中文：加「嗎」就好",color:"rgba(255,202,40,0.1)",border:"rgba(255,202,40,0.3)"},
+    {emoji:"🚨<b>Do</b> → 搬到最前！",text:"英文：拉警報！",color:"rgba(239,83,80,0.1)",border:"rgba(239,83,80,0.4)"},
+    {emoji:"You like dogs?❌",text:"沒有 Do = 不是問句！",color:"rgba(239,83,80,0.1)",border:"rgba(239,83,80,0.3)"},
+    {emoji:"<b>Do</b> you like 🐶?",text:"✅ Do 是問句的信號彈！",color:"rgba(102,187,106,0.1)",border:"rgba(102,187,106,0.4)"}
+  ], formula:"問句 = <b>Do/Does</b> + 主詞 + 動詞原形？" },
+
+  "ps_09": { title:"🚪 門框規則", panels:[
+    {emoji:"我想吃 → 直接接",text:"中文：動詞直接串",color:"rgba(255,202,40,0.1)",border:"rgba(255,202,40,0.3)"},
+    {emoji:"want 🚪 eat",text:"英文：中間需要一扇門",color:"rgba(66,165,245,0.1)",border:"rgba(66,165,245,0.3)"},
+    {emoji:"want <b>to</b> 🚪 eat",text:"to = 門框，動詞保持原形",color:"rgba(171,71,188,0.1)",border:"rgba(171,71,188,0.3)"},
+    {emoji:"I want <b>to</b> eat ✅",text:"✅ 通過 to 門的動詞不變！",color:"rgba(102,187,106,0.1)",border:"rgba(102,187,106,0.4)"}
+  ], formula:"want + 🚪<b>to</b> + 動詞原形" },
+
+  "ps_10": { title:"📢 廣播規則", panels:[
+    {emoji:"有貓 → 🐱",text:"中文：不需要主詞",color:"rgba(255,202,40,0.1)",border:"rgba(255,202,40,0.3)"},
+    {emoji:"___is a cat ❌",text:"英文：不能沒主詞！",color:"rgba(239,83,80,0.1)",border:"rgba(239,83,80,0.3)"},
+    {emoji:"📢<b>There</b> 代替上場",text:"用假主詞 There 開場",color:"rgba(66,165,245,0.1)",border:"rgba(66,165,245,0.3)"},
+    {emoji:"<b>There is</b> a 🐱",text:"✅ 單數 is，複數 are",color:"rgba(102,187,106,0.1)",border:"rgba(102,187,106,0.4)"}
+  ], formula:"There + <b>is</b>(單數) / <b>are</b>(複數) + 名詞" }
+};
+
+// ══════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════
 let currentUser = 'iggy';
@@ -684,6 +770,7 @@ function loadChallenge(idx) {
   document.getElementById('result-area').className = 'result-area';
   document.getElementById('grammar-hint').className = 'grammar-hint';
   document.getElementById('blindspot-card')?.remove();
+  document.getElementById('comic-card')?.remove();
   document.getElementById('btn-submit').disabled = true;
 
   // Render slots
@@ -825,6 +912,7 @@ function submitAnswer() {
 
   // 顯示語法盲區卡片（中文不存在的文法觀念）
   document.getElementById('blindspot-card')?.remove();
+  document.getElementById('comic-card')?.remove();
   if (p.blindspot) {
     const bs = p.blindspot;
     const card = document.createElement('div');
@@ -839,6 +927,26 @@ function submitAnswer() {
       + '<div class="bs-diff">⚡ ' + bs.keyDiff + '</div>'
       + '<div class="bs-try">🧪 ' + bs.trySwap + '</div>';
     resultArea.parentNode.insertBefore(card, resultArea.nextSibling);
+  }
+
+  // 顯示四格漫畫（在盲區卡片下方）
+  const comic = COMICS[p.id];
+  if (comic) {
+    const cc = document.createElement('div');
+    cc.id = 'comic-card';
+    cc.className = 'comic-card';
+    let html = '<div class="comic-title">' + comic.title + '</div><div class="comic-grid">';
+    comic.panels.forEach((panel, i) => {
+      html += '<div class="comic-panel" style="background:' + panel.color + ';border:1px solid ' + panel.border + ';">'
+        + '<div class="panel-num">' + (i+1) + '</div>'
+        + '<div class="panel-emoji">' + panel.emoji + '</div>'
+        + '<div class="panel-text">' + panel.text + '</div></div>';
+    });
+    html += '</div><div class="comic-formula">' + comic.formula + '</div>';
+    cc.innerHTML = html;
+    // 插入到最後（盲區卡片後面或 result-area 後面）
+    const insertAfter = document.getElementById('blindspot-card') || resultArea;
+    insertAfter.parentNode.insertBefore(cc, insertAfter.nextSibling);
   }
 
   updateScore();
