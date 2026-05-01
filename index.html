@@ -228,6 +228,25 @@
     .anim-pop { animation: pop 0.3s ease; }
     .anim-shake { animation: shake 0.3s ease; }
     .anim-bounce { animation: pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+    /* 語法盲區卡片 */
+    .blindspot-card {
+      margin: 12px 0 0; padding: 14px 16px; border-radius: 14px;
+      background: linear-gradient(135deg, rgba(66,165,245,0.08), rgba(171,71,188,0.08));
+      border: 1px solid rgba(66,165,245,0.2);
+      animation: pop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+      user-select: text; -webkit-user-select: text;
+    }
+    .bs-tag { display: inline-block; padding: 2px 10px; border-radius: 10px; background: rgba(233,69,96,0.15); color: var(--accent); font-size: 0.6rem; font-weight: 700; margin-bottom: 6px; }
+    .bs-metaphor { font-size: 0.85rem; font-weight: 700; margin-bottom: 8px; }
+    .bs-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0; }
+    .bs-cn, .bs-en { padding: 8px 10px; border-radius: 10px; font-size: 0.7rem; line-height: 1.5; user-select: text; -webkit-user-select: text; }
+    .bs-cn { background: rgba(255,152,0,0.08); border: 1px solid rgba(255,152,0,0.15); }
+    .bs-en { background: rgba(66,165,245,0.08); border: 1px solid rgba(66,165,245,0.15); }
+    .bs-cn b, .bs-en b { display: block; font-size: 0.6rem; margin-bottom: 2px; opacity: 0.6; }
+    .bs-diff { font-size: 0.72rem; color: var(--purple); font-weight: 600; text-align: center; margin: 6px 0; user-select: text; -webkit-user-select: text; }
+    .bs-try { font-size: 0.65rem; color: var(--dim); background: rgba(255,255,255,0.03); padding: 6px 10px; border-radius: 8px; margin-top: 6px; line-height: 1.5; user-select: text; -webkit-user-select: text; }
+    .result-explain { user-select: text; -webkit-user-select: text; }
   </style>
 </head>
 <body>
@@ -324,7 +343,8 @@ const PATTERNS = [
       { text: "an", type: "distractor" }
     ],
     grammarPoints: ["主詞是 I → 動詞用原形 like（不加 s）", "apples 是複數，表示「蘋果（們）」"],
-    explain: "I/you/we/they 後面動詞用<b>原形</b>，不加 s。"
+    explain: "I/you/we/they 後面動詞用<b>原形</b>，不加 s。",
+    blindspot: { tag:"主詞動詞一致", metaphor:"🎭 遙控器規則", cnThinking:"中文：「我喜歡」「他喜歡」→ 動詞都一樣", enLogic:"英文：動詞是主詞的影子！I/you/we/they → like（原形），但 he/she/it → likes（加 s）", keyDiff:"中文動詞不變身，英文動詞要看主詞「臉色」", trySwap:"試試看：He like___ apples. → 要加 s 嗎？" }
   },
   // 2. She likes ___s.
   {
@@ -347,7 +367,8 @@ const PATTERNS = [
       { text: "He", type: "distractor" }
     ],
     grammarPoints: ["She 是第三人稱 → 動詞要加 s", "like → likes"],
-    explain: "He/She/It 是<b>第三人稱單數</b>，動詞要加 <b>-s</b>。"
+    explain: "He/She/It 是<b>第三人稱單數</b>，動詞要加 <b>-s</b>。",
+    blindspot: { tag:"三單現變形", metaphor:"👑 國王管家規則", cnThinking:"中文：「她有」「我有」→「有」永遠不變", enLogic:"英文：She 是國王，動詞必須穿上國王規定的制服（加 s）！dogs 是受詞，沒有決定權", keyDiff:"動詞往左看主詞，不是往右看受詞", trySwap:"思考：She have dogs. 還是 She has dogs.？→ 看主詞 She，不看 dogs！" }
   },
   // 3. I have a banana.
   {
@@ -372,7 +393,8 @@ const PATTERNS = [
       { text: "has", type: "distractor" }
     ],
     grammarPoints: ["banana 是子音開頭 → 用 a", "如果是 apple 就要用 an"],
-    explain: "<b>a</b> 用在子音開頭的字前面，<b>an</b> 用在母音開頭（a/e/i/o/u）的字前面。"
+    explain: "<b>a</b> 用在子音開頭的字前面，<b>an</b> 用在母音開頭（a/e/i/o/u）的字前面。",
+    blindspot: { tag:"名詞不能裸奔", metaphor:"👕 穿衣服規則", cnThinking:"中文：「我有香蕉」→ 名詞可以光著身子出場", enLogic:"英文：名詞必須穿衣服！a/an = 一件，the = 那件，-s = 好幾件。裸奔的名詞是違規的！", keyDiff:"中文名詞可以裸奔，英文名詞必須穿外套（a/an/the/-s）", trySwap:"錯誤示範：I have banana. ❌ → I have a banana. ✅" }
   },
   // 4. I have an egg.
   {
@@ -397,7 +419,8 @@ const PATTERNS = [
       { text: "eggs", type: "distractor" }
     ],
     grammarPoints: ["egg 是母音 e 開頭 → 用 an", "an 讓發音更順暢"],
-    explain: "egg 的第一個音是母音 <b>e</b>，所以用 <b>an</b> 不用 a。"
+    explain: "egg 的第一個音是母音 <b>e</b>，所以用 <b>an</b> 不用 a。",
+    blindspot: { tag:"a vs an 順口規則", metaphor:"🎵 潤滑劑規則", cnThinking:"中文：「一個蛋」「一個蘋果」→ 量詞不會因為後面的字改變", enLogic:"英文：a egg 唸起來卡卡的（母音撞母音），加 n 變 an egg 像潤滑劑！", keyDiff:"英文冠詞會為了「好聽」而變形，中文沒有這規則", trySwap:"聽聽看：a apple 🤢 vs an apple 🎵 → 哪個順？" }
   },
   // 5. I can swim.
   {
@@ -420,7 +443,8 @@ const PATTERNS = [
       { text: "swimming", type: "distractor" }
     ],
     grammarPoints: ["can 後面接動詞原形", "不管主詞是誰，can 後面的動詞都不變"],
-    explain: "<b>can</b> 後面的動詞永遠用<b>原形</b>，不加 s、不加 ing。"
+    explain: "<b>can</b> 後面的動詞永遠用<b>原形</b>，不加 s、不加 ing。",
+    blindspot: { tag:"助動詞護盾", metaphor:"🛡️ 護盾規則", cnThinking:"中文：「我會游泳」→「游泳」不用改", enLogic:"英文：can 像護盾，保護後面的動詞不用變形。有 can 在，動詞就凍結在原形！", keyDiff:"can/will/must 後面的動詞永遠「凍結」在原形", trySwap:"She can swims. ❌ → She can swim. ✅ → can 後面不加 s！" }
   },
   // 6. It is big.
   {
@@ -443,7 +467,8 @@ const PATTERNS = [
       { text: "am", type: "distractor" }
     ],
     grammarPoints: ["It 搭配 is（不是 am 也不是 are）", "形容詞直接放在 is 後面"],
-    explain: "I → <b>am</b>，He/She/It → <b>is</b>，You/We/They → <b>are</b>。"
+    explain: "I → <b>am</b>，He/She/It → <b>is</b>，You/We/They → <b>are</b>。",
+    blindspot: { tag:"Be 動詞配對", metaphor:"🧩 拼圖規則", cnThinking:"中文：「我是」「他是」「我們是」→ 都用「是」", enLogic:"英文：Be 動詞有三張臉（am/is/are），每種只配特定主詞，像拼圖一樣！", keyDiff:"中文「是」從不變形，英文 be 有三張臉", trySwap:"I am / He is / They are → 互換就裝不上去！" }
   },
   // 7. This is a dog.
   {
@@ -468,7 +493,8 @@ const PATTERNS = [
       { text: "dogs", type: "distractor" }
     ],
     grammarPoints: ["This 指近處的東西", "a dog = 一隻狗（單數）"],
-    explain: "<b>This</b> = 這個（近的），<b>That</b> = 那個（遠的）。"
+    explain: "<b>This</b> = 這個（近的），<b>That</b> = 那個（遠的）。",
+    blindspot: { tag:"指示詞＋冠詞", metaphor:"👆 手指規則", cnThinking:"中文：「這是狗」→ 不需要「一隻」也可以", enLogic:"英文：用手指（This）指東西時，還要說清楚是「一個」（a）！", keyDiff:"中文「這是狗」OK，英文 This is dog ❌ → 要 This is a dog", trySwap:"This is cat. ❌ → This is a cat. ✅" }
   },
   // 8. Do you like dogs?
   {
@@ -493,7 +519,8 @@ const PATTERNS = [
       { text: "likes", type: "distractor" }
     ],
     grammarPoints: ["疑問句把 Do 放到最前面", "Do 後面的動詞用原形"],
-    explain: "疑問句把 <b>Do/Does</b> 搬到句首，動詞回到<b>原形</b>。"
+    explain: "疑問句把 <b>Do/Does</b> 搬到句首，動詞回到<b>原形</b>。",
+    blindspot: { tag:"疑問句倒裝", metaphor:"🚨 警鈴規則", cnThinking:"中文：「你喜歡狗嗎？」→ 加「嗎」就好，語序不變", enLogic:"英文：問問題要拉警報！把 Do 搬到最前面，像發射信號彈告訴對方：問題來了！", keyDiff:"中文問句加「嗎」，英文問句要「倒裝」搬 Do", trySwap:"You like dogs? ❌ → Do you like dogs? ✅" }
   },
   // 9. I want to eat.
   {
@@ -518,7 +545,8 @@ const PATTERNS = [
       { text: "eats", type: "distractor" }
     ],
     grammarPoints: ["want to + 動詞原形 = 想要做某事", "to 後面永遠接原形"],
-    explain: "<b>want to</b> 後面接動詞<b>原形</b>，表示「想要做…」。"
+    explain: "<b>want to</b> 後面接動詞<b>原形</b>，表示「想要做…」。",
+    blindspot: { tag:"to ＋ 原形動詞", metaphor:"🚪 門框規則", cnThinking:"中文：「我想吃」→ 直接接就好", enLogic:"英文：want 和 eat 之間需要一扇門（to）。通過門的動詞必須回到原形！", keyDiff:"中文兩個動詞直接串，英文要用 to 當橋樑", trySwap:"I want eating. ❌ → I want to eat. ✅" }
   },
   // 10. There is a cat.
   {
@@ -543,7 +571,8 @@ const PATTERNS = [
       { text: "cats", type: "distractor" }
     ],
     grammarPoints: ["There is + 單數名詞 = 有一個…", "There are + 複數名詞 = 有很多…"],
-    explain: "單數用 <b>There is</b>，複數用 <b>There are</b>。"
+    explain: "單數用 <b>There is</b>，複數用 <b>There are</b>。",
+    blindspot: { tag:"存在句假主詞", metaphor:"📢 廣播規則", cnThinking:"中文：「有貓」→ 不需要主詞", enLogic:"英文：不能無主語！用 There 當假主詞開場，is/are 要看後面名詞的單複數", keyDiff:"中文可以省主詞，英文必須有（哪怕是假的 There）", trySwap:"There are a cat. ❌ → There is a cat. ✅ → 看後面名詞！" }
   }
 ];
 
@@ -654,6 +683,7 @@ function loadChallenge(idx) {
   usedBlocks = [];
   document.getElementById('result-area').className = 'result-area';
   document.getElementById('grammar-hint').className = 'grammar-hint';
+  document.getElementById('blindspot-card')?.remove();
   document.getElementById('btn-submit').disabled = true;
 
   // Render slots
@@ -791,6 +821,24 @@ function submitAnswer() {
     resultExplain.innerHTML = '正確答案：<b>' + correctStr + '</b><br>' + p.explain;
     resultArea.className = 'result-area show wrong anim-shake';
     progress[p.id] = 'wrong';
+  }
+
+  // 顯示語法盲區卡片（中文不存在的文法觀念）
+  document.getElementById('blindspot-card')?.remove();
+  if (p.blindspot) {
+    const bs = p.blindspot;
+    const card = document.createElement('div');
+    card.id = 'blindspot-card';
+    card.className = 'blindspot-card';
+    card.innerHTML = '<div class="bs-tag">💡 中文沒有的觀念：' + bs.tag + '</div>'
+      + '<div class="bs-metaphor">' + bs.metaphor + '</div>'
+      + '<div class="bs-compare">'
+      + '<div class="bs-cn"><b>🇹🇼 中文直覺</b>' + bs.cnThinking + '</div>'
+      + '<div class="bs-en"><b>🇺🇸 英文邏輯</b>' + bs.enLogic + '</div>'
+      + '</div>'
+      + '<div class="bs-diff">⚡ ' + bs.keyDiff + '</div>'
+      + '<div class="bs-try">🧪 ' + bs.trySwap + '</div>';
+    resultArea.parentNode.insertBefore(card, resultArea.nextSibling);
   }
 
   updateScore();
