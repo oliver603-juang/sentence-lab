@@ -354,7 +354,7 @@ const PATTERNS = [
     ],
     grammarPoints: ["主詞是 I → 動詞用原形 like（不加 s）", "apples 是複數，表示「蘋果（們）」"],
     explain: "I/you/we/they 後面動詞用<b>原形</b>，不加 s。",
-    blindspot: { tag:"主詞動詞一致", metaphor:"🎭 遙控器規則", cnThinking:"中文：「我喜歡」「他喜歡」→ 動詞都一樣", enLogic:"英文：動詞是主詞的影子！I/you/we/they → like（原形），但 he/she/it → likes（加 s）", keyDiff:"中文動詞不變身，英文動詞要看主詞「臉色」", trySwap:"試試看：He like___ apples. → 要加 s 嗎？" }
+    blindspot: { tag:"主詞動詞一致", metaphor:"🫥 影子規則", cnThinking:"中文：「我喜歡」「他喜歡」→ 動詞都一樣", enLogic:"英文：動詞是主詞的影子！I/you/they → like，He/She/It → likes（影子長出 s 尾巴）", keyDiff:"中文動詞不變身，英文動詞要看主詞「臉色」", trySwap:"試試看：He like___ apples. → 要加 s 嗎？" }
   },
   // 2. She likes ___s.
   {
@@ -583,6 +583,131 @@ const PATTERNS = [
     grammarPoints: ["There is + 單數名詞 = 有一個…", "There are + 複數名詞 = 有很多…"],
     explain: "單數用 <b>There is</b>，複數用 <b>There are</b>。",
     blindspot: { tag:"存在句假主詞", metaphor:"📢 廣播規則", cnThinking:"中文：「有貓」→ 不需要主詞", enLogic:"英文：不能無主語！用 There 當假主詞開場，is/are 要看後面名詞的單複數", keyDiff:"中文可以省主詞，英文必須有（哪怕是假的 There）", trySwap:"There are a cat. ❌ → There is a cat. ✅ → 看後面名詞！" }
+  },
+  // ═══ 補強句型：否定句、祈使句、Does 問句 ═══
+  // 11. 否定句（⛔ 禁止規則 — 警鈴規則的延伸）
+  {
+    id: "ps_11", level: "beginner", category: "negative",
+    title: "我不喜歡…", chinese: "我不喜歡蛇。",
+    formula: "S + don't + V(原形) + O",
+    answer: ["I", "don't", "like", "snakes"],
+    slots: [
+      { label: "主詞", type: "subject" },
+      { label: "否定", type: "auxiliary" },
+      { label: "動詞原形", type: "verb" },
+      { label: "受詞", type: "object" }
+    ],
+    blocks: [
+      { text: "I", type: "subject" },
+      { text: "don't", type: "auxiliary" },
+      { text: "like", type: "verb" },
+      { text: "snakes", type: "object" }
+    ],
+    distractors: [
+      { text: "likes", type: "distractor" },
+      { text: "not", type: "distractor" }
+    ],
+    grammarPoints: ["don't 後面動詞用原形", "中文說「不」，英文要用 don't"],
+    explain: "否定句用 <b>don't</b>（I/you/we/they）或 <b>doesn't</b>（he/she/it），後面動詞回<b>原形</b>。",
+    blindspot: { tag:"否定句助動詞", metaphor:"⛔ 禁止規則", cnThinking:"中文：「我不喜歡」→ 加「不」就好，動詞不變", enLogic:"英文：don't 是一面禁止牌，它出現後動詞必須回到原形（跟 can 一樣是護盾！）", keyDiff:"中文的「不」不影響動詞，英文的 don't 讓動詞回原形", trySwap:"She don't like ❌ → She doesn't like ✅ → She 要用 doesn't！" }
+  },
+  // 12. Does 問句（警鈴 + 影子的組合）
+  {
+    id: "ps_12", level: "beginner", category: "question",
+    title: "她喜歡…嗎？", chinese: "她喜歡貓嗎？",
+    formula: "Does + S(三單) + V(原形) + O ?",
+    answer: ["Does", "she", "like", "cats"],
+    slots: [
+      { label: "助動詞", type: "auxiliary" },
+      { label: "主詞", type: "subject" },
+      { label: "動詞原形", type: "verb" },
+      { label: "受詞", type: "object" }
+    ],
+    blocks: [
+      { text: "Does", type: "auxiliary" },
+      { text: "she", type: "subject" },
+      { text: "like", type: "verb" },
+      { text: "cats", type: "object" }
+    ],
+    distractors: [
+      { text: "Do", type: "distractor" },
+      { text: "likes", type: "distractor" }
+    ],
+    grammarPoints: ["She 是三單 → 問句用 Does", "Does 出現後動詞回原形（不加 s）"],
+    explain: "<b>Does</b> 已經幫動詞扛了 s，所以動詞回<b>原形</b>。Does 也是護盾！",
+    blindspot: { tag:"Does 護盾", metaphor:"🛡️🚨 護盾+警鈴", cnThinking:"中文：「她喜歡嗎？」→ 動詞不變", enLogic:"英文：Does 同時做兩件事：拉警報（問句）+ 擋住 s（護盾）→ 動詞回原形", keyDiff:"Does = 警鈴 + 護盾的合體英雄", trySwap:"Does she likes cats? ❌ → Does she like cats? ✅" }
+  },
+  // 13. 祈使句（廣播規則的延伸 — 省略主詞）
+  {
+    id: "ps_13", level: "beginner", category: "imperative",
+    title: "打開門！", chinese: "打開那扇門！",
+    formula: "V(原形) + O",
+    answer: ["Open", "the", "door"],
+    slots: [
+      { label: "動詞原形", type: "verb" },
+      { label: "冠詞", type: "article" },
+      { label: "名詞", type: "object" }
+    ],
+    blocks: [
+      { text: "Open", type: "verb" },
+      { text: "the", type: "article" },
+      { text: "door", type: "object" }
+    ],
+    distractors: [
+      { text: "Opens", type: "distractor" },
+      { text: "You", type: "distractor" }
+    ],
+    grammarPoints: ["祈使句省略主詞 You", "動詞用原形，不加 s"],
+    explain: "命令句的主詞 <b>You</b> 被省略了，動詞直接用<b>原形</b>開頭。",
+    blindspot: { tag:"祈使句省主詞", metaphor:"📢 命令廣播", cnThinking:"中文：「開門！」→ 本來就沒主詞", enLogic:"英文：其實有主詞（You），但命令時省略掉了。這是唯一允許不寫主詞的句型！", keyDiff:"英文幾乎所有句子都要主詞，祈使句是唯一例外", trySwap:"Opens the door. ❌ → Open the door. ✅ → 命令不加 s！" }
+  },
+  // 14. 否定祈使句（禁止 + 命令的組合）
+  {
+    id: "ps_14", level: "beginner", category: "imperative",
+    title: "不要跑！", chinese: "不要跑！",
+    formula: "Don't + V(原形)",
+    answer: ["Don't", "run"],
+    slots: [
+      { label: "否定", type: "auxiliary" },
+      { label: "動詞原形", type: "verb" }
+    ],
+    blocks: [
+      { text: "Don't", type: "auxiliary" },
+      { text: "run", type: "verb" }
+    ],
+    distractors: [
+      { text: "Not", type: "distractor" },
+      { text: "runs", type: "distractor" }
+    ],
+    grammarPoints: ["Don't + 原形 = 不要做某事", "不是 Not run，是 Don't run"],
+    explain: "禁止做某事 = <b>Don't</b> + 動詞原形。不要用 Not！",
+    blindspot: { tag:"否定命令", metaphor:"⛔📢 禁止+命令", cnThinking:"中文：「不要跑」→ 加「不要」就好", enLogic:"英文：Don't 是「禁止廣播」，它既是否定又是命令。後面動詞一定是原形", keyDiff:"中文「不要」不影響動詞，英文 Don't 也讓動詞保持原形", trySwap:"Not run! ❌ → Don't run! ✅" }
+  },
+  // 15. She doesn't（否定 + 三單的組合）
+  {
+    id: "ps_15", level: "beginner", category: "negative",
+    title: "她不喜歡…", chinese: "她不喜歡蛇。",
+    formula: "S(三單) + doesn't + V(原形) + O",
+    answer: ["She", "doesn't", "like", "snakes"],
+    slots: [
+      { label: "主詞", type: "subject" },
+      { label: "否定", type: "auxiliary" },
+      { label: "動詞原形", type: "verb" },
+      { label: "受詞", type: "object" }
+    ],
+    blocks: [
+      { text: "She", type: "subject" },
+      { text: "doesn't", type: "auxiliary" },
+      { text: "like", type: "verb" },
+      { text: "snakes", type: "object" }
+    ],
+    distractors: [
+      { text: "don't", type: "distractor" },
+      { text: "likes", type: "distractor" }
+    ],
+    grammarPoints: ["She 是三單 → 用 doesn't（不是 don't）", "doesn't 後面動詞回原形"],
+    explain: "She/He/It 的否定用 <b>doesn't</b>，它幫動詞扛了 s，所以動詞用<b>原形</b>。",
+    blindspot: { tag:"doesn't 護盾", metaphor:"⛔🛡️ 禁止+護盾", cnThinking:"中文：「她不喜歡」→ 動詞不變", enLogic:"英文：doesn't = don't 的三單版。它幫 like 扛了 s，所以 like 不用再加 s", keyDiff:"doesn't 已經包含了 s，動詞不要再加", trySwap:"She don't like ❌ → She doesn't like ✅" }
   }
 ];
 
@@ -591,12 +716,12 @@ const PATTERNS = [
 // 未來可改為 Gemini 生成 → Firebase 快取
 // ══════════════════════════════════════════
 const COMICS = {
-  "ps_01": { title:"🎭 遙控器規則", panels:[
-    {emoji:"👦 → 🍎🍎🍎",text:"I like apples",color:"rgba(102,187,106,0.1)",border:"rgba(102,187,106,0.3)"},
-    {emoji:"👧 → 🍎🍎🍎",text:"She like...等等!",color:"rgba(239,83,80,0.1)",border:"rgba(239,83,80,0.3)"},
-    {emoji:"👧💫 → like<b>+s</b>",text:"She 是三單，動詞要變身！",color:"rgba(255,202,40,0.1)",border:"rgba(255,202,40,0.3)"},
-    {emoji:"👧 → like<b>s</b> 🍎",text:"✅ She likes apples.",color:"rgba(102,187,106,0.1)",border:"rgba(102,187,106,0.4)"}
-  ], formula:"👤I/you → like ｜ 👧she/he → like<b>s</b>" },
+  "ps_01": { title:"🫥 影子規則", panels:[
+    {emoji:"👦 like 🍎",text:"I 的影子 → like（原形）",color:"rgba(102,187,106,0.1)",border:"rgba(102,187,106,0.3)"},
+    {emoji:"👧 like❓🍎",text:"換 She，影子要跟著變！",color:"rgba(255,202,40,0.1)",border:"rgba(255,202,40,0.3)"},
+    {emoji:"👧 like → like<b>s</b>",text:"She 的影子要加 s 尾巴",color:"rgba(66,165,245,0.1)",border:"rgba(66,165,245,0.3)"},
+    {emoji:"👧 like<b>s</b> 🍎 ✅",text:"動詞是主詞的影子！",color:"rgba(102,187,106,0.1)",border:"rgba(102,187,106,0.4)"}
+  ], formula:"I/You/They → like ｜ He/She/It → like<b>s</b>" },
 
   "ps_02": { title:"👑 國王管家規則", panels:[
     {emoji:"👧👑 → 🏃‍♂️",text:"She 是國王，管動詞！",color:"rgba(171,71,188,0.1)",border:"rgba(171,71,188,0.3)"},
@@ -606,11 +731,11 @@ const COMICS = {
   ], formula:"👑主詞 → 決定動詞 ｜ 受詞沒有決定權" },
 
   "ps_03": { title:"👕 穿衣服規則", panels:[
-    {emoji:"🍌😱",text:"banana 光著身子！",color:"rgba(239,83,80,0.1)",border:"rgba(239,83,80,0.3)"},
-    {emoji:"👕→🍌",text:"名詞必須穿衣服！",color:"rgba(66,165,245,0.1)",border:"rgba(66,165,245,0.3)"},
-    {emoji:"<b>a</b> 🍌",text:"b 開頭是子音 → 穿 a",color:"rgba(255,202,40,0.1)",border:"rgba(255,202,40,0.3)"},
-    {emoji:"I have <b>a</b> 🍌",text:"✅ 名詞不能裸奔！",color:"rgba(102,187,106,0.1)",border:"rgba(102,187,106,0.4)"}
-  ], formula:"名詞 = 必須穿 a / an / the / -s" },
+    {emoji:"I have banana❌",text:"banana 光著身子出場！",color:"rgba(239,83,80,0.1)",border:"rgba(239,83,80,0.3)"},
+    {emoji:"👕 a → 🍌",text:"幫名詞穿上衣服 a！",color:"rgba(66,165,245,0.1)",border:"rgba(66,165,245,0.3)"},
+    {emoji:"🍌 = b 開頭（子音）",text:"子音開頭 → 穿 a",color:"rgba(255,202,40,0.1)",border:"rgba(255,202,40,0.3)"},
+    {emoji:"I have <b>a</b> banana ✅",text:"英文名詞不能裸奔！",color:"rgba(102,187,106,0.1)",border:"rgba(102,187,106,0.4)"}
+  ], formula:"英文名詞前面一定要有 <b>a</b> / an / the / -s" },
 
   "ps_04": { title:"🎵 潤滑劑規則", panels:[
     {emoji:"a 🥚 → 😖",text:"a egg 唸起來卡卡的",color:"rgba(239,83,80,0.1)",border:"rgba(239,83,80,0.3)"},
@@ -627,10 +752,10 @@ const COMICS = {
   ], formula:"👤 + 🛡️can + 🏃原形（不加 s/ed/ing）" },
 
   "ps_06": { title:"🧩 拼圖規則", panels:[
-    {emoji:"I → 🧩<b>am</b>",text:"I 只配 am",color:"rgba(66,165,245,0.1)",border:"rgba(66,165,245,0.3)"},
-    {emoji:"He/She → 🧩<b>is</b>",text:"He/She/It 配 is",color:"rgba(239,83,80,0.1)",border:"rgba(239,83,80,0.3)"},
-    {emoji:"They → 🧩<b>are</b>",text:"You/We/They 配 are",color:"rgba(102,187,106,0.1)",border:"rgba(102,187,106,0.3)"},
-    {emoji:"It <b>is</b> big ✅",text:"拼錯就裝不上去！",color:"rgba(255,202,40,0.1)",border:"rgba(255,202,40,0.4)"}
+    {emoji:"I → 🧩<b>am</b>",text:"I 只能配 am",color:"rgba(66,165,245,0.1)",border:"rgba(66,165,245,0.3)"},
+    {emoji:"He/She/It → 🧩<b>is</b>",text:"He/She/It 都配 is",color:"rgba(239,83,80,0.1)",border:"rgba(239,83,80,0.3)"},
+    {emoji:"You/We/They → 🧩<b>are</b>",text:"You/We/They 配 are",color:"rgba(102,187,106,0.1)",border:"rgba(102,187,106,0.3)"},
+    {emoji:"It <b>is</b> big ✅",text:"配錯拼圖就裝不上！",color:"rgba(255,202,40,0.1)",border:"rgba(255,202,40,0.4)"}
   ], formula:"I→am ｜ He/She/It→is ｜ You/We/They→are" },
 
   "ps_07": { title:"👆 手指規則", panels:[
@@ -659,7 +784,42 @@ const COMICS = {
     {emoji:"___is a cat ❌",text:"英文：不能沒主詞！",color:"rgba(239,83,80,0.1)",border:"rgba(239,83,80,0.3)"},
     {emoji:"📢<b>There</b> 代替上場",text:"用假主詞 There 開場",color:"rgba(66,165,245,0.1)",border:"rgba(66,165,245,0.3)"},
     {emoji:"<b>There is</b> a 🐱",text:"✅ 單數 is，複數 are",color:"rgba(102,187,106,0.1)",border:"rgba(102,187,106,0.4)"}
-  ], formula:"There + <b>is</b>(單數) / <b>are</b>(複數) + 名詞" }
+  ], formula:"There + <b>is</b>(單數) / <b>are</b>(複數) + 名詞" },
+
+  "ps_11": { title:"⛔ 禁止規則", panels:[
+    {emoji:"我不喜歡 🐍",text:"中文：加「不」就好",color:"rgba(255,202,40,0.1)",border:"rgba(255,202,40,0.3)"},
+    {emoji:"⛔ <b>don't</b> 登場",text:"don't 是禁止牌！",color:"rgba(239,83,80,0.1)",border:"rgba(239,83,80,0.4)"},
+    {emoji:"don't + like（原形）",text:"don't 也是護盾，動詞不變！",color:"rgba(66,165,245,0.1)",border:"rgba(66,165,245,0.3)"},
+    {emoji:"I <b>don't</b> like 🐍 ✅",text:"don't/doesn't 後面用原形",color:"rgba(102,187,106,0.1)",border:"rgba(102,187,106,0.4)"}
+  ], formula:"I/You/They + <b>don't</b> ｜ He/She/It + <b>doesn't</b> + 原形" },
+
+  "ps_12": { title:"🛡️🚨 護盾+警鈴", panels:[
+    {emoji:"她喜歡貓嗎？",text:"She → 三單 → 要處理 s！",color:"rgba(255,202,40,0.1)",border:"rgba(255,202,40,0.3)"},
+    {emoji:"🚨 <b>Does</b> 搬到最前",text:"Does = 警鈴 + 護盾合體",color:"rgba(239,83,80,0.1)",border:"rgba(239,83,80,0.4)"},
+    {emoji:"Does she like<s>s</s>",text:"Does 幫扛了 s → 動詞回原形",color:"rgba(66,165,245,0.1)",border:"rgba(66,165,245,0.3)"},
+    {emoji:"<b>Does</b> she like 🐱? ✅",text:"Does 同時拉警報 + 擋 s",color:"rgba(102,187,106,0.1)",border:"rgba(102,187,106,0.4)"}
+  ], formula:"<b>Does</b> + He/She/It + 動詞原形？" },
+
+  "ps_13": { title:"📢 命令廣播", panels:[
+    {emoji:"開門！→ 🚪",text:"中文：沒有主詞也OK",color:"rgba(255,202,40,0.1)",border:"rgba(255,202,40,0.3)"},
+    {emoji:"(You) open the 🚪",text:"英文：主詞 You 被省略了",color:"rgba(66,165,245,0.1)",border:"rgba(66,165,245,0.3)"},
+    {emoji:"Open（原形開頭）",text:"命令句動詞直接開頭，不加 s",color:"rgba(171,71,188,0.1)",border:"rgba(171,71,188,0.3)"},
+    {emoji:"<b>Open</b> the door! ✅",text:"唯一可以省主詞的句型！",color:"rgba(102,187,106,0.1)",border:"rgba(102,187,106,0.4)"}
+  ], formula:"命令 = 動詞原形開頭（省略 You）" },
+
+  "ps_14": { title:"⛔📢 禁止命令", panels:[
+    {emoji:"不要跑！",text:"中文：加「不要」",color:"rgba(255,202,40,0.1)",border:"rgba(255,202,40,0.3)"},
+    {emoji:"Not run ❌",text:"英文不能只用 Not！",color:"rgba(239,83,80,0.1)",border:"rgba(239,83,80,0.3)"},
+    {emoji:"⛔ <b>Don't</b> + run",text:"Don't = 禁止命令牌",color:"rgba(66,165,245,0.1)",border:"rgba(66,165,245,0.3)"},
+    {emoji:"<b>Don't</b> run! ✅",text:"Don't 後面動詞原形",color:"rgba(102,187,106,0.1)",border:"rgba(102,187,106,0.4)"}
+  ], formula:"禁止 = <b>Don't</b> + 動詞原形" },
+
+  "ps_15": { title:"⛔🛡️ doesn't 護盾", panels:[
+    {emoji:"她不喜歡 🐍",text:"She → 三單 → 要處理 s！",color:"rgba(255,202,40,0.1)",border:"rgba(255,202,40,0.3)"},
+    {emoji:"She don't ❌",text:"三單不能用 don't！",color:"rgba(239,83,80,0.1)",border:"rgba(239,83,80,0.3)"},
+    {emoji:"<b>doesn't</b> = don't + s",text:"doesn't 幫扛了 s",color:"rgba(66,165,245,0.1)",border:"rgba(66,165,245,0.3)"},
+    {emoji:"She <b>doesn't</b> like ✅",text:"動詞回原形，s 在 doesn't 裡",color:"rgba(102,187,106,0.1)",border:"rgba(102,187,106,0.4)"}
+  ], formula:"He/She/It + <b>doesn't</b> + 動詞原形" }
 };
 
 // ══════════════════════════════════════════
@@ -723,7 +883,8 @@ function renderLevelTabs() {
   const labels = {
     present_simple: '現在式', articles: '冠詞 a/an', can: '能力 can',
     be_adj: 'Be + 形容詞', this_is: '這是...', question: '疑問句',
-    want_to: '想要 want to', there_is: 'There is/are'
+    want_to: '想要 want to', there_is: 'There is/are',
+    negative: '⛔ 否定句', imperative: '📢 命令句'
   };
   const el = document.getElementById('level-tabs');
   el.innerHTML = '';
