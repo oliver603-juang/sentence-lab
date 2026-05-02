@@ -42,10 +42,6 @@
       margin-left: auto; padding: 4px 12px; border-radius: 14px;
       background: var(--accent); color: white; font-size: 0.75rem; font-weight: 700;
     }
-    .gear-btn {
-      width: 36px; height: 36px; border: none; border-radius: 50%;
-      background: var(--card); color: var(--dim); font-size: 1rem; cursor: pointer;
-    }
 
     /* ═══ Level Selector ═══ */
     .level-tabs {
@@ -199,24 +195,6 @@
     .grammar-hint b { color: var(--blue); }
 
     /* ═══ Settings Modal ═══ */
-    .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.6);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.2s;
-    }
-    .modal-overlay.open { opacity: 1; pointer-events: auto; }
-    .modal {
-      background: var(--card); border-radius: 20px; padding: 24px;
-      width: 90%; max-width: 380px; max-height: 80vh; overflow-y: auto;
-      border: 1px solid var(--border);
-    }
-    .modal h2 { font-size: 1rem; margin-bottom: 12px; }
-    .modal-btn {
-      padding: 8px 20px; border: none; border-radius: 12px;
-      font-family: inherit; font-size: 0.8rem; font-weight: 600; cursor: pointer;
-    }
-    .modal-btn.save { background: var(--gold); color: #333; }
-    .modal-btn.cancel { background: var(--border); color: var(--dim); }
 
     /* ═══ Empty State ═══ */
     .empty-state {
@@ -292,7 +270,6 @@
   <button class="user-btn active" id="btn-iggy" onclick="switchUser('iggy')">🦊 Iggy</button>
   <button class="user-btn" id="btn-yoyo" onclick="switchUser('yoyo')">🐸 Yoyo</button>
   <div class="score-badge" id="score-badge">0 分</div>
-  <button class="gear-btn" onclick="openSettings()">⚙️</button>
 </div>
 
 <!-- Level Tabs -->
@@ -336,21 +313,6 @@
 <div class="progress-row">
   <div class="progress-pills" id="progress-pills"></div>
   <div class="progress-label" id="progress-label">0/0</div>
-</div>
-
-<!-- Settings Modal -->
-<div class="modal-overlay" id="settings-modal">
-  <div class="modal">
-    <h2>⚙️ 設定</h2>
-    <div style="margin-bottom:12px;">
-      <label style="font-size:0.75rem;color:var(--dim);">🧠 Gemini API Key（未來 AI 解說用）</label>
-      <input type="password" id="gemini-key-input" placeholder="AIza..." style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);font-size:0.8rem;margin-top:4px;">
-    </div>
-    <div style="display:flex;gap:8px;justify-content:flex-end;">
-      <button class="modal-btn cancel" onclick="closeSettings()">取消</button>
-      <button class="modal-btn save" onclick="saveSettings()">✅ 儲存</button>
-    </div>
-  </div>
 </div>
 
 <script>
@@ -1402,16 +1364,6 @@ function speakSentence(text) {
   window.speechSynthesis.speak(u);
 }
 
-// ══════════════════════════════════════════
-// SETTINGS
-// ══════════════════════════════════════════
-function openSettings() { document.getElementById('settings-modal').classList.add('open'); }
-function closeSettings() { document.getElementById('settings-modal').classList.remove('open'); }
-function saveSettings() {
-  const key = document.getElementById('gemini-key-input').value.trim();
-  if (key) localStorage.setItem('sl-gemini-key', key);
-  closeSettings();
-}
 
 // ══════════════════════════════════════════
 // START
