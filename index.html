@@ -4,7 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="句型積木">
   <meta name="theme-color" content="#1a1a2e">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-sl-192.png">
   <title>英文句型積木</title>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
   <style>
@@ -1032,6 +1036,7 @@ function saveUserData() {
 
 function switchUser(userId) {
   currentUser = userId;
+  localStorage.setItem('sl-user', userId);
   document.querySelectorAll('.user-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('btn-' + userId).classList.add('active');
   loadUserData();
@@ -1232,14 +1237,15 @@ function submitAnswer() {
   });
 
   if (isCorrect) {
-    resultText.textContent = '✅ 正確！';
+    const sentenceStr = p.answer.join(' ');
+    resultText.innerHTML = '✅ 正確！ <button onclick="speakSentence(\'' + sentenceStr.replace(/'/g, "\\'") + '\')" style="background:none;border:1px solid var(--gold);border-radius:50%;width:28px;height:28px;font-size:1rem;cursor:pointer;vertical-align:middle;margin-left:6px;" title="唸出例句">🔊</button>';
     resultExplain.innerHTML = p.explain;
     resultArea.className = 'result-area show correct compact';
     totalScore += 10;
     progress[p.id] = 'correct';
   } else {
     const correctStr = p.answer.join(' ');
-    resultText.textContent = '💪 再試一次';
+    resultText.innerHTML = '💪 再試一次 <button onclick="speakSentence(\'' + correctStr.replace(/'/g, "\\'") + '\')" style="background:none;border:1px solid var(--accent);border-radius:50%;width:28px;height:28px;font-size:1rem;cursor:pointer;vertical-align:middle;margin-left:6px;" title="唸出正確例句">🔊</button>';
     resultExplain.innerHTML = '正確：<b>' + correctStr + '</b>';
     resultArea.className = 'result-area show wrong compact';
     progress[p.id] = 'wrong';
@@ -1275,7 +1281,8 @@ function submitAnswer() {
     const card = document.createElement('div');
     card.id = 'blindspot-card';
     card.className = 'blindspot-card';
-    card.innerHTML = '<div class="bs-tag">💡 ' + bs.tag + '</div>'
+    const sentenceToSpeak = p.answer.join(' ');
+    card.innerHTML = '<div class="bs-tag">💡 ' + bs.tag + ' <button onclick="speakSentence(\'' + sentenceToSpeak.replace(/'/g, "\\'") + '\')" style="background:none;border:1px solid var(--gold);border-radius:50%;width:32px;height:32px;font-size:1.1rem;cursor:pointer;vertical-align:middle;margin-left:6px;" title="唸出例句">🔊</button></div>'
       + '<div class="bs-metaphor">' + bs.metaphor + '</div>'
       + '<div class="bs-compare">'
       + '<div class="bs-cn"><b>🇹🇼 中文</b>' + bs.cnThinking + '</div>'
@@ -1383,6 +1390,19 @@ function updateScore() {
 }
 
 // ══════════════════════════════════════════
+// SPEAK SENTENCE (Web Speech API)
+// ══════════════════════════════════════════
+function speakSentence(text) {
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'en-US';
+  u.rate = 0.85;
+  u.pitch = 1.1;
+  window.speechSynthesis.speak(u);
+}
+
+// ══════════════════════════════════════════
 // SETTINGS
 // ══════════════════════════════════════════
 function openSettings() { document.getElementById('settings-modal').classList.add('open'); }
@@ -1396,7 +1416,12 @@ function saveSettings() {
 // ══════════════════════════════════════════
 // START
 // ══════════════════════════════════════════
-window.addEventListener('load', init);
+window.addEventListener('load', () => {
+  init();
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  }
+});
 </script>
 </body>
 </html>
